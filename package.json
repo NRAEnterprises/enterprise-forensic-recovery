@@ -1,0 +1,13 @@
+{
+  "name": "@enterprise-recovery/forensic-recovery",
+  "version": "0.2.0",
+  "description": "Local-first forensic inventory, archive recovery, carving, project analysis, and evidence reporting CLI.",
+  "type": "module",
+  "bin": { "recovery": "bin/recovery.js" },
+  "exports": { ".": "./src/index.js" },
+  "files": ["bin", "src", "README.md", "LICENSE"],
+  "engines": { "node": ">=20" },
+  "scripts": { "test": "node --test", "start": "node bin/recovery.js", "doctor": "node bin/recovery.js doctor" },
+  "keywords": ["forensics", "data-recovery", "archive-repair", "carving", "incident-response"],
+  "license": "Apache-2.0"
+}
