@@ -31,6 +31,8 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | ext orphan/JBD2 metadata | Implemented in 0.5.2 | Orphan inode field and JBD2 magic reporting; replay pending |
 | USN reason classification | Implemented in 0.5.3 | Named reason flags retained with raw masks |
 | JBD2 block classification | Implemented in 0.5.3 | Descriptor/commit/superblock/revoke type names with raw values |
+| SQLite inspection | Implemented in 0.6.0 | Main header plus WAL/rollback-journal sidecar inspection |
+| SQLite structural page recovery | Implemented in 0.6.0 | Bounded page/cell candidates with raw offsets and hashes |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule

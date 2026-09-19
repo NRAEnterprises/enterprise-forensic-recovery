@@ -8,6 +8,7 @@ import { promisify } from 'node:util';
 import { createCase, addSource, imageSource, inspectSource, inventoryCase, identifyCase, carveFile, verifyCase, verifyAudit, doctor, extractArchives } from '../src/index.js';
 import { findNativeBinary } from '../src/native.js';
 import { inspectFilesystem, recoverDeletedNtfs, recoverNtfsJournals, decodeNtfsJournalArtifacts, recoverExtMetadata } from '../src/filesystem.js';
+import { inspectDatabase, recoverDatabasePages } from '../src/database.js';
 const execFileAsync = promisify(execFile);
 import { loadPolicy, assertOutputSafe } from '../src/policy.js';
 import { main, EXIT } from '../src/cli.js';
@@ -44,6 +45,8 @@ test('NTFS nonresident runlist reconstruction and journal stream extraction are 
 test('ext metadata recovery reports orphan inode and JBD2 magic hits', async () => { const root = await tempDir(); const image = path.join(root, 'ext.img'); const bytes = Buffer.alloc(8192); bytes.writeUInt16LE(0xef53, 1024 + 56); bytes.writeUInt32LE(11, 1024 + 224); bytes.writeUInt32LE(0xc03b3998, 4096); bytes.writeUInt32LE(1, 4100); await fs.writeFile(image, bytes); const result = await recoverExtMetadata(image, path.join(root, 'ext-report')); assert.equal(result.filesystem.type, 'ext-family'); assert.equal(result.orphanInode, 11); assert.equal(result.journalMagicHits.length, 1); assert.equal(result.journalMagicHits[0].blockTypeName, 'descriptor'); });
 
 test('journal decoding names USN reasons and JBD2 block types', async () => { const root = await tempDir(); const dir = path.join(root, 'journal'); await fs.mkdir(dir); const artifact = path.join(dir, 'usn.bin'); const usn = Buffer.alloc(80); usn.writeUInt32LE(76, 0); usn.writeUInt16LE(2, 4); usn.writeUInt16LE(0, 6); usn.writeUInt32LE(0x00400100, 40); usn.writeUInt16LE(16, 56); usn.writeUInt16LE(60, 58); usn.write('file.txt', 60, 'utf16le'); await fs.writeFile(artifact, usn); await fs.writeFile(path.join(dir, 'journal-manifest.json'), JSON.stringify({ streams: [{ output: artifact, names: ['$UsnJrnl'], copiedBytes: usn.length }] })); const result = await decodeNtfsJournalArtifacts(dir); assert.deepEqual(result.decoded[0].usn.records[0].reasonFlags, ['FILE_CREATE', 'CLOSE']); });
+
+test('SQLite inspection and structural page recovery preserve page provenance', async () => { const root = await tempDir(); const database = path.join(root, 'sample.db'); const bytes = Buffer.alloc(1024); bytes.write('SQLite format 3\u0000', 0, 'ascii'); bytes.writeUInt16BE(1024, 16); bytes[18] = 1; bytes[19] = 1; bytes.writeUInt32BE(1, 28); bytes.writeUInt32BE(1, 52); bytes.writeUInt32BE(1, 56); bytes[100] = 0x0d; bytes.writeUInt16BE(1, 103); bytes.writeUInt16BE(900, 108); bytes[900] = 8; await fs.writeFile(database, bytes); const inspection = await inspectDatabase(database); assert.equal(inspection.header.valid, true); assert.equal(inspection.header.pageSize, 1024); const result = await recoverDatabasePages(database, path.join(root, 'pages')); assert.equal(result.pages.length, 1); assert.equal(result.pages[0].pageType, 'table-leaf'); assert.equal(result.pages[0].candidates[0].byteOffset, 900); });
 
 test('CLI returns stable usage status for an unknown command', async () => { await assert.rejects(() => main(['not-a-command']), error => error.exitCode === EXIT.USAGE); });
 

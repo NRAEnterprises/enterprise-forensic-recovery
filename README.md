@@ -74,6 +74,15 @@ These operations never mount or modify the source. NTFS recovery produces quaran
 
 Decoded USN records retain the raw reason mask and add named flags such as `FILE_CREATE`, `FILE_DELETE`, `RENAME_NEW_NAME`, and `CLOSE`. JBD2 hits retain raw numeric values and add block-type labels such as `descriptor`, `commit`, `superblock-v1`, `superblock-v2`, or `revoke`.
 
+For SQLite structural recovery:
+
+```bash
+recovery database inspect /path/to/database.db
+recovery database recover-pages /path/to/database.db ./recovered/sqlite-pages
+```
+
+The database workflow validates headers and page/cell boundaries, preserves raw offsets and hashes, and inspects—but does not replay—WAL or rollback-journal sidecars. It does not claim restored rows or a reconstructed historical database.
+
 ### 4. Run triage and hashing
 
 ```bash
