@@ -6,14 +6,18 @@ import { listProfiles } from './profiles.js';
 import { listCapabilities } from './capabilities.js';
 import { completion } from './completion.js';
 import { diffReports } from './report-diff.js';
-import { addCaseNote, listCaseNotes } from './notes.js';
+import { addCaseNote, listCaseNotes, verifyCaseNotes } from './notes.js';
+import { createManifest } from './manifest.js';
 
 export const EXIT = Object.freeze({ OK: 0, PARTIAL: 2, USAGE: 64, SOURCE: 66, POLICY: 77, INTERNAL: 70 });
 
-function help() { return `Enterprise Forensic Recovery CLI v0.4.0\n\nUsage:\n  recovery case create <dir> [--metadata JSON]\n  recovery source add <case-dir> <path>\n  recovery source inspect <source>\n  recovery filesystem inspect <image>\n  recovery filesystem recover-deleted <image> <output>\n  recovery filesystem recover-journals <image> <output>\n  recovery filesystem decode-journals <output>\n  recovery filesystem recover-ext <image> <output>\n  recovery database inspect <database>\n  recovery database recover-pages <database> <output>\n  recovery inventory <case-dir> [--follow-symlinks] [--json]\n  recovery identify <case-dir> [--json]\n  recovery validate <case-dir> [--json]\n  recovery extract <case-dir> <output-dir> [--overwrite]\n  recovery carve <file> <output-dir> [--max-artifacts N]\n  recovery analyze project <case-dir>\n  recovery verify <case-dir>\n  recovery report <case-dir>\n  recovery policy show <case-dir>\n  recovery policy set <case-dir> <policy.json>\n  recovery version\n  recovery profile list\n  recovery capability list\n  recovery completion <bash|zsh|powershell>
+function help() { return `Enterprise Forensic Recovery CLI v0.4.0\n\nUsage:\n  recovery case create <dir> [--metadata JSON]\n  recovery source add <case-dir> <path>\n  recovery source inspect <source>\n  recovery filesystem inspect <image>\n  recovery filesystem recover-deleted <image> <output>\n  recovery filesystem recover-journals <image> <output>\n  recovery filesystem decode-journals <output>\n  recovery filesystem recover-ext <image> <output>\n  recovery database inspect <database>\n  recovery database recover-pages <database> <output>\n  recovery inventory <case-dir> [--follow-symlinks] [--json]\n  recovery identify <case-dir> [--json]\n  recovery validate <case-dir> [--json]\n  recovery extract <case-dir> <output-dir> [--overwrite]\n  recovery carve <file> <output-dir> [--max-artifacts N]\n  recovery analyze project <case-dir>\n  recovery verify <case-dir>\n  recovery report <case-dir>\n  recovery policy show <case-dir>\n  recovery policy set <case-dir> <policy.json>
+  recovery policy validate <policy.json>\n  recovery version\n  recovery profile list\n  recovery capability list\n  recovery completion <bash|zsh|powershell>
   recovery diff <left-report> <right-report>
   recovery notes add <case-dir> <text>
-  recovery notes list <case-dir>\n  recovery doctor\n\nGlobal options:\n  --json       Emit machine-readable JSON only
+  recovery notes list <case-dir>
+  recovery notes verify <case-dir>
+  recovery manifest <directory>\n  recovery doctor\n\nGlobal options:\n  --json       Emit machine-readable JSON only
   --jsonl      Emit one machine-readable JSON object per line\n  --quiet      Suppress non-error human output\n  --help       Show help\n\nAll operations are read-only by default. Work from forensic copies or images whenever possible.\n`; }
 function parse(args) { const positional = []; const options = {}; const booleanFlags = new Set(['help', 'json', 'jsonl', 'quiet', 'resume', 'native', 'overwrite', 'follow_symlinks']); for (let i = 0; i < args.length; i++) { const token = args[i]; if (token === '--') { positional.push(...args.slice(i + 1)); break; } if (token.startsWith('--')) { const key = token.slice(2).replaceAll('-', '_'); const next = args[i + 1]; if (!booleanFlags.has(key) && next && !next.startsWith('--')) { options[key] = next; i++; } else options[key] = true; } else positional.push(token); } return { positional, options }; }
 function value(positional, index, label) { if (!positional[index]) { const error = new Error(`Missing ${label}`); error.exitCode = EXIT.USAGE; throw error; } return positional[index]; }
@@ -40,6 +44,8 @@ export async function main(args) {
   if (command === 'diff') { output(await diffReports(value([sub, ...rest], 0, 'left report'), value([sub, ...rest], 1, 'right report')), options); return EXIT.OK; }
   if (command === 'notes' && sub === 'add') { output(await addCaseNote(value(rest, 0, 'case directory'), value(rest, 1, 'note text'), options.author || 'operator'), options); return EXIT.OK; }
   if (command === 'notes' && sub === 'list') { output(await listCaseNotes(value(rest, 0, 'case directory')), options); return EXIT.OK; }
+  if (command === 'notes' && sub === 'verify') { const result = await verifyCaseNotes(value(rest, 0, 'case directory')); output(result, options); return result.ok ? EXIT.OK : EXIT.PARTIAL; }
+  if (command === 'manifest') { output(await createManifest(value([sub, ...rest], 0, 'artifact directory')), options); return EXIT.OK; }
   if (command === 'source' && sub === 'image') { const result = await imageSource(value(rest, 0, 'case directory'), value(rest, 1, 'source path'), value(rest, 2, 'image output'), { resume: Boolean(options.resume), native: Boolean(options.native), overwrite: Boolean(options.overwrite), offset: options.offset ? Number(options.offset) : 0 }); output(result, options); return result.complete ? EXIT.OK : EXIT.PARTIAL; }
   if (command === 'inventory') { output(await inventoryCase(value(target, 0, 'case directory'), { followSymlinks: Boolean(options.follow_symlinks) }), options); return EXIT.OK; }
   if (command === 'identify') { output(await identifyCase(value(target, 0, 'case directory')), options); return EXIT.OK; }
@@ -52,5 +58,6 @@ export async function main(args) {
   if (command === 'report') { output(await report(value(target, 0, 'case directory')), options); return EXIT.OK; }
   if (command === 'policy' && sub === 'show') { output(await loadPolicy(value(rest, 0, 'case directory')), options); return EXIT.OK; }
   if (command === 'policy' && sub === 'set') { const caseDir = value(rest, 0, 'case directory'); const policyFile = value(rest, 1, 'policy JSON file'); const policy = JSON.parse(await (await import('node:fs/promises')).readFile(policyFile, 'utf8')); output(await savePolicy(caseDir, normalizePolicy(policy)), options); return EXIT.OK; }
+  if (command === 'policy' && sub === 'validate') { const policyFile = value(rest, 0, 'policy JSON file'); const policy = JSON.parse(await (await import('node:fs/promises')).readFile(policyFile, 'utf8')); output({ valid: true, policy: normalizePolicy(policy) }, options); return EXIT.OK; }
   const error = new Error(`Unknown command.\n${help()}`); error.exitCode = EXIT.USAGE; throw error;
 }

@@ -47,6 +47,9 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Report diffing | Implemented in 1.0.0 | Deterministic added/removed/changed evidence comparison |
 | Append-only case notes | Implemented in 1.0.0 | Hash-linked operator notes in case logs |
 | Boolean flag parsing | Implemented in 1.0.0 | Prevents flag-first commands from consuming positional tokens |
+| Case-note chain verification | Implemented in 1.1.0 | Validates previous-hash and record-hash links |
+| Artifact manifests | Implemented in 1.1.0 | Deterministic file metadata and SHA-256 manifest generation |
+| Standalone policy validation | Implemented in 1.1.0 | Normalizes and validates policy JSON before case use |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
