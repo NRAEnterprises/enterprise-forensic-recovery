@@ -65,9 +65,10 @@ For filesystem-level triage and bounded NTFS deleted-record candidates:
 ```bash
 recovery filesystem inspect /path/to/filesystem.img
 recovery filesystem recover-deleted /path/to/ntfs.img ./recovered/ntfs-candidates
+recovery filesystem recover-journals /path/to/ntfs.img ./recovered/ntfs-journals
 ```
 
-These operations never mount or modify the source. NTFS recovery currently produces quarantined deleted MFT-record candidates and resident names; it does not reconstruct file data extents or replay journals.
+These operations never mount or modify the source. NTFS recovery produces quarantined deleted MFT-record candidates, resident names, and bounded nonresident stream artifacts when valid runlists are present. Journal recovery extracts `$UsnJrnl` and `$LogFile` streams but does not replay transactions or semantically decode every journal record.
 
 ### 4. Run triage and hashing
 
