@@ -17,6 +17,9 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Raw device imaging | Implemented in 0.4.0 | Node streaming engine; read-only source, resume, hashes, progress, error map |
 | Cloud connectors | Planned | Requires provider authorization and connector implementation |
 | Native Rust accelerator | Implemented in 0.4.0 | Rust streaming imager packaged for Linux x64; other platforms use Node fallback |
+| Source inspection | Implemented in 0.4.1 | MBR/GPT signatures, device flags, and selected filesystem header hints |
+| TAR validation/extraction | Implemented in 0.4.1 | Listing, path checks, quotas, and separate output; host tar dependency |
+| Streaming carving | Implemented in 0.4.1 | Chunked scanning and bounded range extraction |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule

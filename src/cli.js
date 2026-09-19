@@ -1,4 +1,4 @@
-import { createCase, loadCase, addSource, imageSource, inventoryCase, identifyCase, validateArchives, extractArchives, carveFile, analyzeProjects, verifyCase, verifyAudit, doctor, report } from './index.js';
+import { createCase, loadCase, addSource, imageSource, inspectSource, inventoryCase, identifyCase, validateArchives, extractArchives, carveFile, analyzeProjects, verifyCase, verifyAudit, doctor, report } from './index.js';
 import { loadPolicy, savePolicy, normalizePolicy } from './policy.js';
 
 export const EXIT = Object.freeze({ OK: 0, PARTIAL: 2, USAGE: 64, SOURCE: 66, POLICY: 77, INTERNAL: 70 });
@@ -14,6 +14,7 @@ export async function main(args) {
   if (command === 'doctor') { output(await doctor(), options); return EXIT.OK; }
   if (command === 'case' && sub === 'create') { const metadata = options.metadata ? JSON.parse(options.metadata) : {}; output(await createCase(value(rest, 0, 'case directory'), metadata), options); return EXIT.OK; }
   if (command === 'source' && sub === 'add') { output(await addSource(value(rest, 0, 'case directory'), value(rest, 1, 'source path')), options); return EXIT.OK; }
+  if (command === 'source' && sub === 'inspect') { output(await inspectSource(value(rest, 0, 'source path')), options); return EXIT.OK; }
   if (command === 'source' && sub === 'image') { const result = await imageSource(value(rest, 0, 'case directory'), value(rest, 1, 'source path'), value(rest, 2, 'image output'), { resume: Boolean(options.resume), native: Boolean(options.native), overwrite: Boolean(options.overwrite), offset: options.offset ? Number(options.offset) : 0 }); output(result, options); return result.complete ? EXIT.OK : EXIT.PARTIAL; }
   if (command === 'inventory') { output(await inventoryCase(value(target, 0, 'case directory'), { followSymlinks: Boolean(options.follow_symlinks) }), options); return EXIT.OK; }
   if (command === 'identify') { output(await identifyCase(value(target, 0, 'case directory')), options); return EXIT.OK; }

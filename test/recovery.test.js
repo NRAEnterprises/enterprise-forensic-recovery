@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { createCase, addSource, imageSource, inventoryCase, identifyCase, carveFile, verifyCase, verifyAudit, doctor, extractArchives } from '../src/index.js';
+import { createCase, addSource, imageSource, inspectSource, inventoryCase, identifyCase, carveFile, verifyCase, verifyAudit, doctor, extractArchives } from '../src/index.js';
 import { findNativeBinary } from '../src/native.js';
 import { loadPolicy, assertOutputSafe } from '../src/policy.js';
 import { main, EXIT } from '../src/cli.js';
@@ -26,6 +26,8 @@ test('audit chain verifies after case and source events', async () => { const ro
 test('streaming image fallback creates a verified copy and supports resume', async () => { const root = await tempDir(); const input = path.join(root, 'source.bin'); const output = path.join(root, 'image.bin'); const caseDir = path.join(root, 'case'); await fs.writeFile(input, Buffer.alloc(3 * 1024 * 1024 + 17, 0x5a)); await createCase(caseDir); const result = await imageSource(caseDir, input, output); assert.equal(result.complete, true); assert.equal(result.copiedBytes, 3 * 1024 * 1024 + 17); assert.deepEqual(await fs.readFile(input), await fs.readFile(output)); const resumed = await imageSource(caseDir, input, output, { resume: true }); assert.equal(resumed.complete, true); });
 
 test('native accelerator matches the source when built', async (t) => { const binary = await findNativeBinary(); if (!binary) { t.skip('recovery-native binary not built'); return; } const root = await tempDir(); const input = path.join(root, 'source.bin'); const output = path.join(root, 'native-image.bin'); const caseDir = path.join(root, 'case'); await fs.writeFile(input, Buffer.from('native parity test\n'.repeat(10000))); await createCase(caseDir); const result = await imageSource(caseDir, input, output, { native: true }); assert.equal(result.complete, true); assert.deepEqual(await fs.readFile(input), await fs.readFile(output)); });
+
+test('source inspection detects an MBR signature without mounting the source', async () => { const root = await tempDir(); const file = path.join(root, 'disk.img'); const bytes = Buffer.alloc(1024); bytes[510] = 0x55; bytes[511] = 0xaa; await fs.writeFile(file, bytes); const result = await inspectSource(file); assert.equal(result.inspection.partitionTables[0].type, 'mbr'); assert.equal(result.inspection.isBlockDevice, false); });
 
 test('CLI returns stable usage status for an unknown command', async () => { await assert.rejects(() => main(['not-a-command']), error => error.exitCode === EXIT.USAGE); });
 

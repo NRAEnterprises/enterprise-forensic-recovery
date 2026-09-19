@@ -53,9 +53,12 @@ Register sources before changing them. Do not overwrite the original archive or 
 recovery source image ./cases/account-recovery /path/to/source.img ./images/source-copy.img
 recovery source image ./cases/account-recovery /path/to/source.img ./images/source-copy.img --resume
 recovery source image ./cases/account-recovery /path/to/source.img ./images/source-copy-native.img --native
+recovery source inspect /path/to/source.img
 ```
 
 The source is opened without write access. The destination must not be inside a registered source path. A resumed image hashes the existing prefix and the newly copied range, records the copied offset and byte count, and writes an image report under `reports/`.
+
+`source inspect` performs header-level triage without mounting the source. It reports MBR/GPT signatures, block-device flags, and selected filesystem header hints. It is not a filesystem parser.
 
 ### 4. Run triage and hashing
 
@@ -65,7 +68,7 @@ recovery identify ./cases/account-recovery
 recovery validate ./cases/account-recovery
 ```
 
-Inventory records paths, sizes, timestamps, modes, SHA-256 hashes, signatures, and extension hints. Identification reports known formats and extension/content mismatches. Archive validation tests ZIP files and reports corrupted or unsupported containers.
+Inventory records paths, sizes, timestamps, modes, SHA-256 hashes, signatures, and extension hints. Identification reports known formats and extension/content mismatches. Archive validation tests ZIP and TAR files, validates GZIP streams when available, and reports corrupted or unsupported containers.
 
 ### 4. Extract valid ZIP archives to a separate directory
 
