@@ -35,6 +35,7 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | SQLite structural page recovery | Implemented in 0.6.0 | Bounded page/cell candidates with raw offsets and hashes |
 | ext orphan-chain walker | Implemented in 0.7.0 | Bounded inode-chain candidates with cycle/range/truncation states |
 | JBD2 transaction evidence | Implemented in 0.7.0 | Descriptor/commit/revoke grouping without replay |
+| Project reconstruction | Implemented in 0.7.1 | Bounded Python/Rust/Node evidence grouping and dependency extraction |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
