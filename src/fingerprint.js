@@ -1,0 +1,4 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import crypto from 'node:crypto';
+export async function fingerprintSource(source) { const file = path.resolve(source); const stat = await fs.stat(file); const hash = crypto.createHash('sha256'); const handle = await fs.open(file, 'r'); try { const buffer = Buffer.alloc(1024 * 1024); let position = 0; while (position < stat.size) { const read = await handle.read(buffer, 0, Math.min(buffer.length, stat.size - position), position); if (!read.bytesRead) break; hash.update(buffer.subarray(0, read.bytesRead)); position += read.bytesRead; } } finally { await handle.close(); } return { schema: 'recovery.source-fingerprint/v1', source: file, type: stat.isDirectory() ? 'directory' : 'file', bytes: stat.isFile() ? stat.size : null, mtime: stat.mtime.toISOString(), mode: (stat.mode & 0o777).toString(8), sha256: stat.isFile() ? hash.digest('hex') : null, readOnly: true }; }

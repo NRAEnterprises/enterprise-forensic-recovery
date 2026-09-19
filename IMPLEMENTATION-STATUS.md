@@ -50,6 +50,9 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Case-note chain verification | Implemented in 1.1.0 | Validates previous-hash and record-hash links |
 | Artifact manifests | Implemented in 1.1.0 | Deterministic file metadata and SHA-256 manifest generation |
 | Standalone policy validation | Implemented in 1.1.0 | Normalizes and validates policy JSON before case use |
+| Case status summary | Implemented in 1.2.0 | Case, source, report, audit, notes, and policy presence summary |
+| Manifest verification | Implemented in 1.2.0 | Detects added, removed, and changed artifact files |
+| Source fingerprinting | Implemented in 1.2.0 | Read-only metadata and streaming SHA-256 fingerprint |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
