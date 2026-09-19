@@ -3,8 +3,11 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { createCase, addSource, imageSource, inspectSource, inventoryCase, identifyCase, carveFile, verifyCase, verifyAudit, doctor, extractArchives } from '../src/index.js';
 import { findNativeBinary } from '../src/native.js';
+const execFileAsync = promisify(execFile);
 import { loadPolicy, assertOutputSafe } from '../src/policy.js';
 import { main, EXIT } from '../src/cli.js';
 
@@ -28,6 +31,10 @@ test('streaming image fallback creates a verified copy and supports resume', asy
 test('native accelerator matches the source when built', async (t) => { const binary = await findNativeBinary(); if (!binary) { t.skip('recovery-native binary not built'); return; } const root = await tempDir(); const input = path.join(root, 'source.bin'); const output = path.join(root, 'native-image.bin'); const caseDir = path.join(root, 'case'); await fs.writeFile(input, Buffer.from('native parity test\n'.repeat(10000))); await createCase(caseDir); const result = await imageSource(caseDir, input, output, { native: true }); assert.equal(result.complete, true); assert.deepEqual(await fs.readFile(input), await fs.readFile(output)); });
 
 test('source inspection detects an MBR signature without mounting the source', async () => { const root = await tempDir(); const file = path.join(root, 'disk.img'); const bytes = Buffer.alloc(1024); bytes[510] = 0x55; bytes[511] = 0xaa; await fs.writeFile(file, bytes); const result = await inspectSource(file); assert.equal(result.inspection.partitionTables[0].type, 'mbr'); assert.equal(result.inspection.isBlockDevice, false); });
+
+test('source inspection parses a bounded GPT entry', async () => { const root = await tempDir(); const file = path.join(root, 'gpt.img'); const bytes = Buffer.alloc(64 * 1024); bytes.write('EFI PART', 512, 'ascii'); bytes.writeBigUInt64LE(2n, 584); bytes.writeUInt32LE(1, 592); bytes.writeUInt32LE(128, 596); bytes[1024] = 1; bytes.writeBigUInt64LE(4n, 1056); bytes.writeBigUInt64LE(20n, 1064); bytes.write('Data', 1080, 'utf16le'); await fs.writeFile(file, bytes); const result = await inspectSource(file); assert.equal(result.inspection.partitionTables[0].type, 'gpt'); assert.equal(result.inspection.partitionTables[0].partitions[0].firstLba, 4); assert.equal(result.inspection.partitionTables[0].partitions[0].name, 'Data'); });
+
+test('GZIP validation and quota-enforced extraction recover a single stream', async () => { const root = await tempDir(); const source = path.join(root, 'source.txt'); const gzip = path.join(root, 'source.txt.gz'); const output = path.join(root, 'out'); await fs.writeFile(source, 'gzip recovery fixture\n'.repeat(100)); const compressed = await execFileAsync('gzip', ['-c', source], { encoding: 'buffer' }); await fs.writeFile(gzip, compressed.stdout); const caseDir = path.join(root, 'case'); await createCase(caseDir); await addSource(caseDir, gzip); await inventoryCase(caseDir); const validation = await (await import('../src/index.js')).validateArchives(caseDir); assert.equal(validation.results[0].status, 'recovered'); const extraction = await extractArchives(caseDir, output); assert.equal(extraction.results[0].status, 'recovered'); assert.deepEqual(await fs.readFile(path.join(output, 'source.txt')), await fs.readFile(source)); });
 
 test('CLI returns stable usage status for an unknown command', async () => { await assert.rejects(() => main(['not-a-command']), error => error.exitCode === EXIT.USAGE); });
 

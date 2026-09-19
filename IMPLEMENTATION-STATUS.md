@@ -20,6 +20,9 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Source inspection | Implemented in 0.4.1 | MBR/GPT signatures, device flags, and selected filesystem header hints |
 | TAR validation/extraction | Implemented in 0.4.1 | Listing, path checks, quotas, and separate output; host tar dependency |
 | Streaming carving | Implemented in 0.4.1 | Chunked scanning and bounded range extraction |
+| GPT/MBR partition entries | Implemented in 0.4.2 | Bounded entry parsing and source-range validation; CRC validation pending |
+| Filesystem header hints | Implemented in 0.4.2 | NTFS, FAT32, exFAT, and ext-family clues; full parsers pending |
+| GZIP stream extraction | Implemented in 0.4.2 | Quota-enforced streaming output with explicit overwrite policy |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
