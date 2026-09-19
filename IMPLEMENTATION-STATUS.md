@@ -36,6 +36,10 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | ext orphan-chain walker | Implemented in 0.7.0 | Bounded inode-chain candidates with cycle/range/truncation states |
 | JBD2 transaction evidence | Implemented in 0.7.0 | Descriptor/commit/revoke grouping without replay |
 | Project reconstruction | Implemented in 0.7.1 | Bounded Python/Rust/Node evidence grouping and dependency extraction |
+| CLI version command | Implemented in 0.8.0 | Stable `recovery version` output |
+| Doctor environment diagnostics | Implemented in 0.8.0 | Working directory, memory, platform, and umask diagnostics |
+| Package export map | Implemented in 0.8.0 | Core, filesystem, database, and project-reconstruction exports |
+| Capability matrix | Implemented in 0.8.0 | Audited support and limitation summary |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
