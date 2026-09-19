@@ -28,7 +28,7 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | NTFS nonresident reconstruction | Implemented in 0.5.1 | Signed runlists, sparse handling, bounded stream artifacts |
 | NTFS journal stream extraction | Implemented in 0.5.1 | `$UsnJrnl`/`$LogFile` MFT stream discovery; replay pending |
 | NTFS journal semantic decoding | Implemented in 0.5.2 | Bounded USN record decoding and LogFile page classification; replay pending |
-| ext orphan/JBD2 metadata | Implemented in 0.5.2 | Orphan inode field and JBD2 magic reporting; replay pending |
+| ext orphan/JBD2 metadata | Implemented in 0.6.1 | Distinct journal inode/orphan head and JBD2 magic reporting; replay pending |
 | USN reason classification | Implemented in 0.5.3 | Named reason flags retained with raw masks |
 | JBD2 block classification | Implemented in 0.5.3 | Descriptor/commit/superblock/revoke type names with raw values |
 | SQLite inspection | Implemented in 0.6.0 | Main header plus WAL/rollback-journal sidecar inspection |
