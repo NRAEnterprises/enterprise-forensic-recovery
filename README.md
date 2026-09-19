@@ -72,6 +72,8 @@ recovery filesystem recover-ext /path/to/ext.img ./recovered/ext-metadata
 
 These operations never mount or modify the source. NTFS recovery produces quarantined deleted MFT-record candidates, resident names, bounded nonresident stream artifacts, and structurally decoded USN/LogFile records when valid streams are present. Journal recovery does not replay transactions. Ext recovery reports orphan/JBD2 metadata but does not replay the journal or reconstruct inodes.
 
+Decoded USN records retain the raw reason mask and add named flags such as `FILE_CREATE`, `FILE_DELETE`, `RENAME_NEW_NAME`, and `CLOSE`. JBD2 hits retain raw numeric values and add block-type labels such as `descriptor`, `commit`, `superblock-v1`, `superblock-v2`, or `revoke`.
+
 ### 4. Run triage and hashing
 
 ```bash
