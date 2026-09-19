@@ -60,6 +60,15 @@ The source is opened without write access. The destination must not be inside a 
 
 `source inspect` performs header-level triage without mounting the source. It reports MBR/GPT signatures, block-device flags, and selected filesystem header hints. It is not a filesystem parser.
 
+For filesystem-level triage and bounded NTFS deleted-record candidates:
+
+```bash
+recovery filesystem inspect /path/to/filesystem.img
+recovery filesystem recover-deleted /path/to/ntfs.img ./recovered/ntfs-candidates
+```
+
+These operations never mount or modify the source. NTFS recovery currently produces quarantined deleted MFT-record candidates and resident names; it does not reconstruct file data extents or replay journals.
+
 ### 4. Run triage and hashing
 
 ```bash
