@@ -53,6 +53,9 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Case status summary | Implemented in 1.2.0 | Case, source, report, audit, notes, and policy presence summary |
 | Manifest verification | Implemented in 1.2.0 | Detects added, removed, and changed artifact files |
 | Source fingerprinting | Implemented in 1.2.0 | Read-only metadata and streaming SHA-256 fingerprint |
+| Schema catalog | Implemented in 1.3.0 | Machine-readable emitted-report schema identifiers |
+| Exit-code catalog | Implemented in 1.3.0 | Stable automation meanings for CLI statuses |
+| Report index | Implemented in 1.3.0 | Hash-backed case report discovery listing |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule

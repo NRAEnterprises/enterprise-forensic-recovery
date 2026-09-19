@@ -1,0 +1,3 @@
+import { SCHEMAS } from './schema.js';
+export function schemaCatalog() { return { schema: 'recovery.schema-catalog/v1', schemas: Object.entries(SCHEMAS).map(([id, value]) => ({ id, value })).sort((a, b) => a.id.localeCompare(b.id)) }; }
+export function exitCodeCatalog() { return { schema: 'recovery.exit-codes/v1', codes: [{ name: 'OK', code: 0, meaning: 'Completed successfully' }, { name: 'PARTIAL', code: 2, meaning: 'Completed with bounded or incomplete evidence' }, { name: 'USAGE', code: 64, meaning: 'Invalid command or option usage' }, { name: 'SOURCE', code: 66, meaning: 'Source unavailable or invalid' }, { name: 'POLICY', code: 77, meaning: 'Policy prevented the operation' }, { name: 'INTERNAL', code: 70, meaning: 'Unexpected internal error' }] }; }

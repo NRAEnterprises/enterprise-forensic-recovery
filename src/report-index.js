@@ -1,0 +1,4 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import crypto from 'node:crypto';
+export async function reportIndex(caseDir) { const root = path.resolve(caseDir); const reportsDir = path.join(root, 'reports'); const entries = await fs.readdir(reportsDir, { withFileTypes: true }).catch(() => []); const reports = []; for (const entry of entries.filter(item => item.isFile()).sort((a, b) => a.name.localeCompare(b.name))) { const file = path.join(reportsDir, entry.name); const stat = await fs.stat(file); const text = await fs.readFile(file); reports.push({ name: entry.name, path: file, bytes: stat.size, mtime: stat.mtime.toISOString(), sha256: crypto.createHash('sha256').update(text).digest('hex') }); } return { schema: 'recovery.report-index/v1', caseDir: root, reportCount: reports.length, reports }; }
