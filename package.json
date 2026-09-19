@@ -4,7 +4,7 @@
   "description": "Local-first forensic inventory, archive recovery, carving, project analysis, and evidence reporting CLI.",
   "type": "module",
   "bin": { "recovery": "bin/recovery.js" },
-  "exports": { ".": "./src/index.js", "./filesystem": "./src/filesystem.js", "./database": "./src/database.js", "./project-reconstruction": "./src/project-reconstruction.js" },
+  "exports": { ".": "./src/index.js", "./filesystem": "./src/filesystem.js", "./database": "./src/database.js", "./project-reconstruction": "./src/project-reconstruction.js", "./profiles": "./src/profiles.js", "./capabilities": "./src/capabilities.js", "./completion": "./src/completion.js" },
   "sideEffects": false,
   "files": ["bin", "src", "native/bin", "native/recovery-native/Cargo.toml", "native/recovery-native/src", "native/recovery-native/README.md", "README.md", "INSTALL.md", "SECURITY.md", "LICENSE"],
   "repository": { "type": "git", "url": "https://github.com/Nabbey88/enterprise-forensic-recovery.git" },

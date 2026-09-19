@@ -40,6 +40,9 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Doctor environment diagnostics | Implemented in 0.8.0 | Working directory, memory, platform, and umask diagnostics |
 | Package export map | Implemented in 0.8.0 | Core, filesystem, database, and project-reconstruction exports |
 | Capability matrix | Implemented in 0.8.0 | Audited support and limitation summary |
+| Recovery profiles | Implemented in 0.9.0 | Named triage, archive, deleted, project, evidence, and deep workflows |
+| Machine-readable capability list | Implemented in 0.9.0 | Stable capability/status/classification output |
+| Shell completion | Implemented in 0.9.0 | Bash, Zsh, and PowerShell completion output |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
