@@ -66,9 +66,11 @@ For filesystem-level triage and bounded NTFS deleted-record candidates:
 recovery filesystem inspect /path/to/filesystem.img
 recovery filesystem recover-deleted /path/to/ntfs.img ./recovered/ntfs-candidates
 recovery filesystem recover-journals /path/to/ntfs.img ./recovered/ntfs-journals
+recovery filesystem decode-journals ./recovered/ntfs-journals
+recovery filesystem recover-ext /path/to/ext.img ./recovered/ext-metadata
 ```
 
-These operations never mount or modify the source. NTFS recovery produces quarantined deleted MFT-record candidates, resident names, and bounded nonresident stream artifacts when valid runlists are present. Journal recovery extracts `$UsnJrnl` and `$LogFile` streams but does not replay transactions or semantically decode every journal record.
+These operations never mount or modify the source. NTFS recovery produces quarantined deleted MFT-record candidates, resident names, bounded nonresident stream artifacts, and structurally decoded USN/LogFile records when valid streams are present. Journal recovery does not replay transactions. Ext recovery reports orphan/JBD2 metadata but does not replay the journal or reconstruct inodes.
 
 ### 4. Run triage and hashing
 

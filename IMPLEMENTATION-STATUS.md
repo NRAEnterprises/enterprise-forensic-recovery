@@ -27,6 +27,8 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | NTFS deleted-record candidates | Implemented in 0.5.0 | Bounded MFT scan, resident names, hashes, quarantined artifacts |
 | NTFS nonresident reconstruction | Implemented in 0.5.1 | Signed runlists, sparse handling, bounded stream artifacts |
 | NTFS journal stream extraction | Implemented in 0.5.1 | `$UsnJrnl`/`$LogFile` MFT stream discovery; replay pending |
+| NTFS journal semantic decoding | Implemented in 0.5.2 | Bounded USN record decoding and LogFile page classification; replay pending |
+| ext orphan/JBD2 metadata | Implemented in 0.5.2 | Orphan inode field and JBD2 magic reporting; replay pending |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
