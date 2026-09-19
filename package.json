@@ -1,13 +1,16 @@
 {
   "name": "@enterprise-recovery/forensic-recovery",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Local-first forensic inventory, archive recovery, carving, project analysis, and evidence reporting CLI.",
   "type": "module",
   "bin": { "recovery": "bin/recovery.js" },
   "exports": { ".": "./src/index.js" },
-  "files": ["bin", "src", "README.md", "LICENSE"],
+  "files": ["bin", "src", "README.md", "INSTALL.md", "SECURITY.md", "LICENSE"],
+  "repository": { "type": "git", "url": "https://github.com/Nabbey88/enterprise-forensic-recovery.git" },
+  "homepage": "https://github.com/Nabbey88/enterprise-forensic-recovery",
+  "bugs": { "url": "https://github.com/Nabbey88/enterprise-forensic-recovery/issues" },
   "engines": { "node": ">=20" },
-  "scripts": { "test": "node --test", "start": "node bin/recovery.js", "doctor": "node bin/recovery.js doctor" },
+  "scripts": { "test": "node --test", "start": "node bin/recovery.js", "doctor": "node bin/recovery.js doctor", "pack:check": "npm pack --dry-run" },
   "keywords": ["forensics", "data-recovery", "archive-repair", "carving", "incident-response"],
   "license": "Apache-2.0"
 }

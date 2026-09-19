@@ -4,7 +4,7 @@ A local-first npm CLI and SDK for evidence-preserving inventory, file identifica
 
 ## What this release does
 
-This first release is fully functional for read-only case management, recursive file and folder inventory, SHA-256 hashing, signature-based format detection, ZIP validation and extraction through system tools, embedded-file carving for selected formats, Python/Rust/Node project marker analysis, audit logging, and final JSON reporting. It is intentionally dependency-light so it can be installed in restricted enterprise environments.
+The 0.3.0 release adds versioned case and report foundations, read-only policy enforcement, hash-chained audit records, safe output-path checks, duplicate-source protection, bounded binary diagnostics, stable exit codes, validated CLI options, and policy inspection commands. It remains intentionally dependency-light so it can be installed in restricted enterprise environments.
 
 The `doctor` command reports which optional host utilities are available. Raw device imaging, cloud connectors, filesystem-specific undelete modules, and a Rust accelerator are represented as explicit future capability flags rather than being falsely advertised as available.
 
@@ -89,6 +89,15 @@ recovery report ./cases/account-recovery
 ```
 
 Verification re-hashes inventory files and reports mismatches. The final report combines generated JSON sections into `reports/final-report.json`.
+
+### 8. Inspect or change policy
+
+```bash
+recovery policy show ./cases/account-recovery
+recovery policy set ./cases/account-recovery ./approved-policy.json
+```
+
+Cases are read-only by default. Output directories must not be inside registered source paths. Destructive operations are not enabled by default.
 
 ## npm SDK example
 
