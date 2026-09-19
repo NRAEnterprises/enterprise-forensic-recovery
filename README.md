@@ -4,9 +4,9 @@ A local-first npm CLI and SDK for evidence-preserving inventory, file identifica
 
 ## What this release does
 
-The 0.3.0 release adds versioned case and report foundations, read-only policy enforcement, hash-chained audit records, safe output-path checks, duplicate-source protection, bounded binary diagnostics, stable exit codes, validated CLI options, and policy inspection commands. It remains intentionally dependency-light so it can be installed in restricted enterprise environments.
+The 0.4.0 release adds versioned case and report foundations, read-only policy enforcement, hash-chained audit records, safe output-path checks, duplicate-source protection, bounded binary diagnostics, stable exit codes, validated CLI options, and policy inspection commands. It remains intentionally dependency-light so it can be installed in restricted enterprise environments.
 
-The `doctor` command reports which optional host utilities are available. Raw device imaging, cloud connectors, filesystem-specific undelete modules, and a Rust accelerator are represented as explicit future capability flags rather than being falsely advertised as available.
+The `doctor` command reports which optional host utilities are available. This batch adds a Node streaming imaging engine and a packaged Linux x64 Rust accelerator. Cloud connectors and filesystem-specific undelete modules remain unavailable and are reported explicitly.
 
 ## Install
 
@@ -47,7 +47,17 @@ recovery source add ./cases/account-recovery /path/to/00.dat
 
 Register sources before changing them. Do not overwrite the original archive or extracted directory.
 
-### 3. Run triage and hashing
+### 3. Acquire a read-only image
+
+```bash
+recovery source image ./cases/account-recovery /path/to/source.img ./images/source-copy.img
+recovery source image ./cases/account-recovery /path/to/source.img ./images/source-copy.img --resume
+recovery source image ./cases/account-recovery /path/to/source.img ./images/source-copy-native.img --native
+```
+
+The source is opened without write access. The destination must not be inside a registered source path. A resumed image hashes the existing prefix and the newly copied range, records the copied offset and byte count, and writes an image report under `reports/`.
+
+### 4. Run triage and hashing
 
 ```bash
 recovery inventory ./cases/account-recovery

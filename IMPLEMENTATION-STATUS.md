@@ -14,9 +14,9 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Audit integrity | In progress | Hash-chained audit records |
 | ZIP portability | In progress | Host-tool fallback retained with explicit capability reporting |
 | Filesystem recovery | Planned | Requires native parsers and fixture corpus |
-| Raw device imaging | Planned | Requires privileged, platform-specific acquisition backend |
+| Raw device imaging | Implemented in 0.4.0 | Node streaming engine; read-only source, resume, hashes, progress, error map |
 | Cloud connectors | Planned | Requires provider authorization and connector implementation |
-| Native Rust accelerator | Planned | Requires ABI, build matrix, and fuzz corpus |
+| Native Rust accelerator | Implemented in 0.4.0 | Rust streaming imager packaged for Linux x64; other platforms use Node fallback |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
