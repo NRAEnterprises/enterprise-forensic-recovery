@@ -43,6 +43,10 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Recovery profiles | Implemented in 0.9.0 | Named triage, archive, deleted, project, evidence, and deep workflows |
 | Machine-readable capability list | Implemented in 0.9.0 | Stable capability/status/classification output |
 | Shell completion | Implemented in 0.9.0 | Bash, Zsh, and PowerShell completion output |
+| JSON Lines output | Implemented in 1.0.0 | Stream-friendly single-record JSONL mode |
+| Report diffing | Implemented in 1.0.0 | Deterministic added/removed/changed evidence comparison |
+| Append-only case notes | Implemented in 1.0.0 | Hash-linked operator notes in case logs |
+| Boolean flag parsing | Implemented in 1.0.0 | Prevents flag-first commands from consuming positional tokens |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
