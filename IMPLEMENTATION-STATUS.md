@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 56/280 items (20.0%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
+**Audited completion: 58/280 items (20.7%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
 
 ## Audit gates
 
@@ -82,6 +82,8 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Automated progress consistency gate | Implemented in 0.5.0 | `npm run progress:check` recomputes implemented rows and rejects stale headline markers |
 | Archive extraction dry-run | Implemented in 0.5.0 | `--dry-run` plans outputs and policy decisions without creating destination files |
 | Tool version diagnostics | Implemented in 0.5.0 | `doctor` reports detected host-tool versions alongside availability booleans |
+| Duplicate case registration coverage | Implemented in 0.5.0 | Case creation refuses to replace an existing case manifest |
+| Special-file and symlink safety coverage | Implemented in 0.5.0 | Inventory records FIFOs/special files and does not follow symlinks by default |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
