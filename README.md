@@ -4,7 +4,7 @@ A local-first npm CLI and SDK for evidence-preserving inventory, file identifica
 
 ## What this release does
 
-The 0.4.0 release adds versioned case and report foundations, read-only policy enforcement, hash-chained audit records, safe output-path checks, duplicate-source protection, bounded binary diagnostics, stable exit codes, validated CLI options, and policy inspection commands. It remains intentionally dependency-light so it can be installed in restricted enterprise environments.
+The 0.5.0 release adds a dedicated bounded ext orphan-chain walker and JBD2 transaction evidence analyzer while retaining the versioned case/report foundations, read-only policy enforcement, hash-chained audit records, safe output-path checks, duplicate-source protection, bounded binary diagnostics, stable exit codes, validated CLI options, and policy inspection commands.
 
 The `doctor` command reports which optional host utilities are available. This batch adds a Node streaming imaging engine and a packaged Linux x64 Rust accelerator. Cloud connectors and filesystem-specific undelete modules remain unavailable and are reported explicitly.
 
@@ -70,9 +70,9 @@ recovery filesystem decode-journals ./recovered/ntfs-journals
 recovery filesystem recover-ext /path/to/ext.img ./recovered/ext-metadata
 ```
 
-These operations never mount or modify the source. NTFS recovery produces quarantined deleted MFT-record candidates, resident names, bounded nonresident stream artifacts, and structurally decoded USN/LogFile records when valid streams are present. Journal recovery does not replay transactions. Ext recovery reports orphan/JBD2 metadata but does not replay the journal or reconstruct inodes.
+These operations never mount or modify the source. NTFS recovery produces quarantined deleted MFT-record candidates, resident names, bounded nonresident stream artifacts, and structurally decoded USN/LogFile records when valid streams are present. Journal recovery does not replay transactions. Ext recovery uses a bounded orphan-chain walker and dedicated JBD2 analyzer to produce evidence groups; it does not replay the journal, resolve external journal devices, or reconstruct inodes into files.
 
-Decoded USN records retain the raw reason mask and add named flags such as `FILE_CREATE`, `FILE_DELETE`, `RENAME_NEW_NAME`, and `CLOSE`. JBD2 hits retain raw numeric values and add block-type labels such as `descriptor`, `commit`, `superblock-v1`, `superblock-v2`, or `revoke`.
+Decoded USN records retain the raw reason mask and add named flags such as `FILE_CREATE`, `FILE_DELETE`, `RENAME_NEW_NAME`, and `CLOSE`. JBD2 hits retain raw numeric values and add block-type labels such as `descriptor`, `commit`, `superblock-v1`, `superblock-v2`, or `revoke`; transaction groups report committed evidence, partial groups, revoked-block counts, and orphan commits.
 
 For SQLite structural recovery:
 
@@ -155,4 +155,4 @@ The tool does not bypass authentication, defeat encryption, brute-force credenti
 
 ## Package roadmap
 
-The planned next modules are platform-specific imaging helpers, filesystem-aware undelete and journal analysis, more archive formats, SQLite/WAL recovery, a Rust native accelerator, official cloud connectors, plugin isolation, signed releases, SBOM generation, and an optional local service/dashboard.
+The planned next modules are platform-specific imaging helpers, deeper filesystem-aware content reconstruction, more archive formats, SQLite/WAL recovery, official cloud connectors, plugin isolation, signed releases, SBOM generation, and an optional local service/dashboard.

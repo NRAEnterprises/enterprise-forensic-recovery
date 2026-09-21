@@ -1,10 +1,10 @@
 {
   "name": "@enterprise-recovery/forensic-recovery",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Local-first forensic inventory, archive recovery, carving, project analysis, and evidence reporting CLI.",
   "type": "module",
   "bin": { "recovery": "bin/recovery.js" },
-  "exports": { ".": "./src/index.js", "./filesystem": "./src/filesystem.js", "./database": "./src/database.js", "./project-reconstruction": "./src/project-reconstruction.js", "./profiles": "./src/profiles.js", "./capabilities": "./src/capabilities.js", "./completion": "./src/completion.js", "./report-diff": "./src/report-diff.js", "./notes": "./src/notes.js", "./manifest": "./src/manifest.js", "./case-status": "./src/case-status.js", "./fingerprint": "./src/fingerprint.js", "./catalogs": "./src/catalogs.js", "./report-index": "./src/report-index.js" },
+  "exports": { ".": "./src/index.js", "./filesystem": "./src/filesystem.js", "./ext-journal": "./src/ext-journal.js", "./database": "./src/database.js", "./project-reconstruction": "./src/project-reconstruction.js", "./profiles": "./src/profiles.js", "./capabilities": "./src/capabilities.js", "./completion": "./src/completion.js", "./report-diff": "./src/report-diff.js", "./notes": "./src/notes.js", "./manifest": "./src/manifest.js", "./case-status": "./src/case-status.js", "./fingerprint": "./src/fingerprint.js", "./catalogs": "./src/catalogs.js", "./report-index": "./src/report-index.js" },
   "sideEffects": false,
   "files": ["bin", "src", "native/bin", "native/recovery-native/Cargo.toml", "native/recovery-native/src", "native/recovery-native/README.md", "README.md", "INSTALL.md", "SECURITY.md", "LICENSE"],
   "repository": { "type": "git", "url": "https://github.com/Nabbey88/enterprise-forensic-recovery.git" },

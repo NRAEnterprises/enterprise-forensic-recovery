@@ -15,7 +15,7 @@ import { reportIndex } from './report-index.js';
 
 export const EXIT = Object.freeze({ OK: 0, PARTIAL: 2, USAGE: 64, SOURCE: 66, POLICY: 77, INTERNAL: 70 });
 
-function help() { return `Enterprise Forensic Recovery CLI v0.4.0\n\nUsage:\n  recovery case create <dir>
+function help() { return `Enterprise Forensic Recovery CLI v0.5.0\n\nUsage:\n  recovery case create <dir>
   recovery case status <case-dir> [--metadata JSON]\n  recovery source add <case-dir> <path>\n  recovery source inspect <source>\n  recovery filesystem inspect <image>\n  recovery filesystem recover-deleted <image> <output>\n  recovery filesystem recover-journals <image> <output>\n  recovery filesystem decode-journals <output>\n  recovery filesystem recover-ext <image> <output>\n  recovery database inspect <database>\n  recovery database recover-pages <database> <output>\n  recovery inventory <case-dir> [--follow-symlinks] [--json]\n  recovery identify <case-dir> [--json]\n  recovery validate <case-dir> [--json]\n  recovery extract <case-dir> <output-dir> [--overwrite]\n  recovery carve <file> <output-dir> [--max-artifacts N]\n  recovery analyze project <case-dir>\n  recovery verify <case-dir>\n  recovery report <case-dir>
   recovery report index <case-dir>\n  recovery policy show <case-dir>\n  recovery policy set <case-dir> <policy.json>
   recovery policy validate <policy.json>\n  recovery version\n  recovery profile list\n  recovery capability list\n  recovery completion <bash|zsh|powershell>

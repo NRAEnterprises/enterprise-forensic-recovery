@@ -9,7 +9,7 @@ import { SCHEMAS, validateCase, validateDocument } from './schema.js';
 import { findNativeBinary, runNativeImage } from './native.js';
 import { reconstructProjects } from './project-reconstruction.js';
 
-export const VERSION = '0.4.0';
+export const VERSION = '0.5.0';
 export const STATUS = Object.freeze({ RECOVERED: 'recovered', PARTIAL: 'partial', UNCERTAIN: 'uncertain', ENCRYPTED: 'encrypted', CORRUPTED: 'corrupted', UNSUPPORTED: 'unsupported', UNRECOVERABLE: 'unrecoverable' });
 
 const SIGNATURES = [
