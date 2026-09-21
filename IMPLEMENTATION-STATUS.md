@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 25/280 items (8.9%).** This count includes the dedicated ext orphan-chain walker and JBD2 transaction evidence analyzer completed in release 0.5.0.
+**Audited completion: 28/280 items (10.0%).** This count includes the dedicated ext orphan-chain walker, JBD2 transaction evidence analyzer, formal result-status semantics, recovery-method classification, and release compatibility catalog.
 
 ## Current release
 
@@ -60,6 +60,9 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Report index | Implemented in 1.3.0 | Hash-backed case report discovery listing |
 | Dedicated ext orphan-chain walker | Implemented in 0.5.0 | Bounded inode-table traversal with cycle, range, and limit states |
 | Dedicated JBD2 transaction analyzer | Implemented in 0.5.0 | Big-endian block classification and committed/partial evidence grouping |
+| Recovery-result semantics | Implemented in 0.5.0 | Machine-readable recovered, verified, partial, carved, reconstructed, uncertain, encrypted, corrupted, unsupported, and unrecoverable states |
+| Recovery-method catalog | Implemented in 0.5.0 | Supported, experimental, and planned method classifications |
+| Release compatibility notes | Implemented in 0.5.0 | Machine-readable package, case, report, CLI, native, and limitation notes |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule

@@ -153,6 +153,18 @@ Use encrypted case storage, preserve the original source, record the operator an
 
 The tool does not bypass authentication, defeat encryption, brute-force credentials, recover securely erased or overwritten bytes, or reconstruct provider-side account state that is not present in the export. It reports those limits explicitly.
 
+## Machine-readable capability catalogs
+
+Use the catalogs to integrate safely with automation instead of inferring meaning from human text:
+
+```bash
+recovery result-status list
+recovery method list
+recovery compatibility show
+```
+
+Result statuses distinguish validated recovery from partial, carved, reconstructed, uncertain, encrypted, corrupted, unsupported, and unrecoverable evidence. Methods are classified as supported, experimental, or planned; experimental and planned methods are not silently treated as production recovery.
+
 ## Package roadmap
 
 The planned next modules are platform-specific imaging helpers, deeper filesystem-aware content reconstruction, more archive formats, SQLite/WAL recovery, official cloud connectors, plugin isolation, signed releases, SBOM generation, and an optional local service/dashboard.

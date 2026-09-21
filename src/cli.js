@@ -10,7 +10,7 @@ import { addCaseNote, listCaseNotes, verifyCaseNotes } from './notes.js';
 import { createManifest, verifyManifest } from './manifest.js';
 import { caseStatus } from './case-status.js';
 import { fingerprintSource } from './fingerprint.js';
-import { schemaCatalog, exitCodeCatalog } from './catalogs.js';
+import { schemaCatalog, exitCodeCatalog, resultStatusCatalog, recoveryMethodCatalog, compatibilityCatalog } from './catalogs.js';
 import { reportIndex } from './report-index.js';
 
 export const EXIT = Object.freeze({ OK: 0, PARTIAL: 2, USAGE: 64, SOURCE: 66, POLICY: 77, INTERNAL: 70 });
@@ -27,7 +27,10 @@ function help() { return `Enterprise Forensic Recovery CLI v0.5.0\n\nUsage:\n  r
   recovery manifest verify <directory> <manifest>
   recovery fingerprint <source>
   recovery schema list
-  recovery exit-code list\n  recovery doctor\n\nGlobal options:\n  --json       Emit machine-readable JSON only
+  recovery exit-code list
+  recovery result-status list
+  recovery method list
+  recovery compatibility show\n  recovery doctor\n\nGlobal options:\n  --json       Emit machine-readable JSON only
   --jsonl      Emit one machine-readable JSON object per line\n  --quiet      Suppress non-error human output\n  --help       Show help\n\nAll operations are read-only by default. Work from forensic copies or images whenever possible.\n`; }
 function parse(args) { const positional = []; const options = {}; const booleanFlags = new Set(['help', 'json', 'jsonl', 'quiet', 'resume', 'native', 'overwrite', 'follow_symlinks']); for (let i = 0; i < args.length; i++) { const token = args[i]; if (token === '--') { positional.push(...args.slice(i + 1)); break; } if (token.startsWith('--')) { const key = token.slice(2).replaceAll('-', '_'); const next = args[i + 1]; if (!booleanFlags.has(key) && next && !next.startsWith('--')) { options[key] = next; i++; } else options[key] = true; } else positional.push(token); } return { positional, options }; }
 function value(positional, index, label) { if (!positional[index]) { const error = new Error(`Missing ${label}`); error.exitCode = EXIT.USAGE; throw error; } return positional[index]; }
@@ -61,6 +64,9 @@ export async function main(args) {
   if (command === 'fingerprint') { output(await fingerprintSource(value([sub, ...rest], 0, 'source path')), options); return EXIT.OK; }
   if (command === 'schema' && sub === 'list') { output(schemaCatalog(), options); return EXIT.OK; }
   if (command === 'exit-code' && sub === 'list') { output(exitCodeCatalog(), options); return EXIT.OK; }
+  if (command === 'result-status' && sub === 'list') { output(resultStatusCatalog(), options); return EXIT.OK; }
+  if (command === 'method' && sub === 'list') { output(recoveryMethodCatalog(), options); return EXIT.OK; }
+  if (command === 'compatibility' && sub === 'show') { output(compatibilityCatalog(), options); return EXIT.OK; }
   if (command === 'report' && sub === 'index') { output(await reportIndex(value(rest, 0, 'case directory')), options); return EXIT.OK; }
   if (command === 'source' && sub === 'image') { const result = await imageSource(value(rest, 0, 'case directory'), value(rest, 1, 'source path'), value(rest, 2, 'image output'), { resume: Boolean(options.resume), native: Boolean(options.native), overwrite: Boolean(options.overwrite), offset: options.offset ? Number(options.offset) : 0 }); output(result, options); return result.complete ? EXIT.OK : EXIT.PARTIAL; }
   if (command === 'inventory') { output(await inventoryCase(value(target, 0, 'case directory'), { followSymlinks: Boolean(options.follow_symlinks) }), options); return EXIT.OK; }

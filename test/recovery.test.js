@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { createCase, addSource, imageSource, inspectSource, inventoryCase, identifyCase, carveFile, verifyCase, verifyAudit, doctor, extractArchives } from '../src/index.js';
+import { createCase, addSource, imageSource, inspectSource, inventoryCase, identifyCase, carveFile, verifyCase, verifyAudit, doctor, extractArchives, STATUS } from '../src/index.js';
 import { findNativeBinary } from '../src/native.js';
 import { inspectFilesystem, recoverDeletedNtfs, recoverNtfsJournals, decodeNtfsJournalArtifacts, recoverExtMetadata } from '../src/filesystem.js';
 import { inspectDatabase, recoverDatabasePages } from '../src/database.js';
@@ -13,8 +13,11 @@ const execFileAsync = promisify(execFile);
 import { loadPolicy, assertOutputSafe } from '../src/policy.js';
 import { main, EXIT } from '../src/cli.js';
 import { analyzeExtJournal } from '../src/ext-journal.js';
+import { resultStatusCatalog, recoveryMethodCatalog, compatibilityCatalog } from '../src/catalogs.js';
 
 async function tempDir() { return fs.mkdtemp(path.join(os.tmpdir(), 'recovery-test-')); }
+
+test('recovery catalogs define explicit result semantics and support classes', () => { const statuses = resultStatusCatalog(); const methods = recoveryMethodCatalog(); const compatibility = compatibilityCatalog(); assert.equal(STATUS.CARVED, 'carved'); assert.ok(statuses.statuses.some(item => item.name === 'reconstructed')); assert.ok(methods.methods.some(item => item.class === 'experimental')); assert.equal(compatibility.compatibility.currentVersion, '0.5.0'); });
 
 test('creates case with read-only policy, inventories, identifies, and verifies', async () => {
   const root = await tempDir(); const input = path.join(root, 'input'); await fs.mkdir(input); const pdf = path.join(input, 'document.bin'); await fs.writeFile(pdf, Buffer.concat([Buffer.from('%PDF-1.7\n'), Buffer.from('test') ]));
