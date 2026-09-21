@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 28/280 items (10.0%).** This count includes the dedicated ext orphan-chain walker, JBD2 transaction evidence analyzer, formal result-status semantics, recovery-method classification, and release compatibility catalog.
+**Audited completion: 30/280 items (10.7%).** This count includes the dedicated ext orphan-chain walker, JBD2 transaction evidence analyzer, formal result-status semantics, recovery-method classification, release compatibility catalog, expanded environment diagnostics, and compatibility aliases.
 
 ## Current release
 
@@ -63,6 +63,8 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Recovery-result semantics | Implemented in 0.5.0 | Machine-readable recovered, verified, partial, carved, reconstructed, uncertain, encrypted, corrupted, unsupported, and unrecoverable states |
 | Recovery-method catalog | Implemented in 0.5.0 | Supported, experimental, and planned method classifications |
 | Release compatibility notes | Implemented in 0.5.0 | Machine-readable package, case, report, CLI, native, and limitation notes |
+| Expanded environment diagnostics | Implemented in 0.5.0 | UID/GID, root state, writable paths, locale/timezone, clock, memory, tools, and filesystem free-space checks |
+| Compatibility command aliases | Implemented in 0.5.0 | Read-only `inspect` and `image` aliases preserve existing command semantics |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule

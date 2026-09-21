@@ -28,7 +28,7 @@ test('rejects duplicate sources and unsafe output paths', async () => { const ro
 
 test('carves embedded PDF signature', async () => { const root = await tempDir(); const file = path.join(root, 'opaque.dat'); await fs.writeFile(file, Buffer.concat([Buffer.from('prefix'), Buffer.from('%PDF-1.7'), Buffer.from('payload')])); const result = await carveFile(file, path.join(root, 'carved')); assert.equal(result.hits, 1); assert.equal(result.artifacts[0].offset, 6); });
 
-test('doctor returns explicit capability report', async () => { const d = await doctor(); assert.equal(d.schema, 'recovery.doctor/v1'); assert.equal(d.version, '0.5.0'); assert.equal(d.capabilities.hashing, true); });
+test('doctor returns explicit capability report', async () => { const d = await doctor(); assert.equal(d.schema, 'recovery.doctor/v1'); assert.equal(d.version, '0.5.0'); assert.equal(d.capabilities.hashing, true); assert.equal(typeof d.environment.isRoot, 'boolean'); assert.equal(typeof d.environment.writableTempDirectory, 'boolean'); assert.equal(typeof d.environment.filesystem.cwdFreeBytes, 'number'); });
 
 test('audit chain verifies after case and source events', async () => { const root = await tempDir(); const input = path.join(root, 'input.txt'); await fs.writeFile(input, 'audit'); const caseDir = path.join(root, 'case'); await createCase(caseDir); await addSource(caseDir, input); const result = await verifyAudit(caseDir); assert.equal(result.ok, true); assert.equal(result.records, 2); });
 
@@ -53,6 +53,8 @@ test('journal decoding names USN reasons and JBD2 block types', async () => { co
 test('SQLite inspection and structural page recovery preserve page provenance', async () => { const root = await tempDir(); const database = path.join(root, 'sample.db'); const bytes = Buffer.alloc(1024); bytes.write('SQLite format 3\u0000', 0, 'ascii'); bytes.writeUInt16BE(1024, 16); bytes[18] = 1; bytes[19] = 1; bytes.writeUInt32BE(1, 28); bytes.writeUInt32BE(1, 52); bytes.writeUInt32BE(1, 56); bytes[100] = 0x0d; bytes.writeUInt16BE(1, 103); bytes.writeUInt16BE(900, 108); bytes[900] = 8; await fs.writeFile(database, bytes); const inspection = await inspectDatabase(database); assert.equal(inspection.header.valid, true); assert.equal(inspection.header.pageSize, 1024); const result = await recoverDatabasePages(database, path.join(root, 'pages')); assert.equal(result.pages.length, 1); assert.equal(result.pages[0].pageType, 'table-leaf'); assert.equal(result.pages[0].candidates[0].byteOffset, 900); });
 
 test('CLI returns stable usage status for an unknown command', async () => { await assert.rejects(() => main(['not-a-command']), error => error.exitCode === EXIT.USAGE); });
+
+test('CLI supports the read-only inspect compatibility alias', async () => { const root = await tempDir(); const source = path.join(root, 'source.bin'); await fs.writeFile(source, 'alias'); assert.equal(await main(['inspect', source, '--quiet']), EXIT.OK); });
 
 test('archive extraction refuses a destination inside a registered source', async () => { const root = await tempDir(); const source = path.join(root, 'source'); await fs.mkdir(source); const caseDir = path.join(root, 'case'); await createCase(caseDir); await addSource(caseDir, source); await assert.rejects(() => extractArchives(caseDir, source), /inside source/); });
 

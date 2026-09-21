@@ -6,7 +6,7 @@ A local-first npm CLI and SDK for evidence-preserving inventory, file identifica
 
 The 0.5.0 release adds a dedicated bounded ext orphan-chain walker and JBD2 transaction evidence analyzer while retaining the versioned case/report foundations, read-only policy enforcement, hash-chained audit records, safe output-path checks, duplicate-source protection, bounded binary diagnostics, stable exit codes, validated CLI options, and policy inspection commands.
 
-The `doctor` command reports which optional host utilities are available. This batch adds a Node streaming imaging engine and a packaged Linux x64 Rust accelerator. Cloud connectors and filesystem-specific undelete modules remain unavailable and are reported explicitly.
+The `doctor` command reports optional host utilities, native accelerator availability, effective UID/GID and root status, writable working and temporary directories, locale/timezone, memory, filesystem free space, and the clock timestamp. Cloud connectors and filesystem-specific undelete modules remain unavailable and are reported explicitly.
 
 ## Install
 
@@ -59,6 +59,8 @@ recovery source inspect /path/to/source.img
 The source is opened without write access. The destination must not be inside a registered source path. A resumed image hashes the existing prefix and the newly copied range, records the copied offset and byte count, and writes an image report under `reports/`.
 
 `source inspect` performs header-level triage without mounting the source. It reports MBR/GPT signatures, block-device flags, and selected filesystem header hints. It is not a filesystem parser.
+
+The equivalent compatibility aliases are `recovery inspect <source>` and `recovery image <case-dir> <source> <output>`. These aliases do not change the read-only policy or bypass destructive-operation checks.
 
 For filesystem-level triage and bounded NTFS deleted-record candidates:
 

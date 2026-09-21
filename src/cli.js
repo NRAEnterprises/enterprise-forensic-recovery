@@ -41,6 +41,8 @@ export async function main(args) {
   const [command, sub, ...rest] = positional; const target = [sub, ...rest];
   if (command === 'version' || command === '--version') { console.log(VERSION); return EXIT.OK; }
   if (command === 'doctor') { output(await doctor(), options); return EXIT.OK; }
+  if (command === 'inspect') { output(await inspectSource(value([sub, ...rest], 0, 'source path')), options); return EXIT.OK; }
+  if (command === 'image') { const result = await imageSource(value([sub, ...rest], 0, 'case directory'), value([sub, ...rest], 1, 'source path'), value([sub, ...rest], 2, 'image output'), { resume: Boolean(options.resume), native: Boolean(options.native), overwrite: Boolean(options.overwrite), offset: options.offset ? Number(options.offset) : 0 }); output(result, options); return result.complete ? EXIT.OK : EXIT.PARTIAL; }
   if (command === 'case' && sub === 'create') { const metadata = options.metadata ? JSON.parse(options.metadata) : {}; output(await createCase(value(rest, 0, 'case directory'), metadata), options); return EXIT.OK; }
   if (command === 'source' && sub === 'add') { output(await addSource(value(rest, 0, 'case directory'), value(rest, 1, 'source path')), options); return EXIT.OK; }
   if (command === 'source' && sub === 'inspect') { output(await inspectSource(value(rest, 0, 'source path')), options); return EXIT.OK; }
