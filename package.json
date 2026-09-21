@@ -11,7 +11,7 @@
   "homepage": "https://github.com/Nabbey88/enterprise-forensic-recovery",
   "bugs": { "url": "https://github.com/Nabbey88/enterprise-forensic-recovery/issues" },
   "engines": { "node": ">=20" },
-  "scripts": { "test": "node --test", "start": "node bin/recovery.js", "doctor": "node bin/recovery.js doctor", "pack:check": "npm pack --dry-run", "ci:check": "npm ci && npm test && npm pack --dry-run" },
+  "scripts": { "test": "node --test", "start": "node bin/recovery.js", "doctor": "node bin/recovery.js doctor", "pack:check": "npm pack --dry-run", "pack:smoke": "node scripts/pack-smoke.mjs", "ci:check": "npm ci && npm test && npm pack --dry-run" },
   "keywords": ["forensics", "data-recovery", "archive-repair", "carving", "incident-response"],
   "license": "Apache-2.0"
 }

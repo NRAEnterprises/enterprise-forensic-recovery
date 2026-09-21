@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 48/280 items (17.1%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
+**Audited completion: 51/280 items (18.2%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
 
 ## Audit gates
 
@@ -74,6 +74,9 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Release compatibility notes | Implemented in 0.5.0 | Machine-readable package, case, report, CLI, native, and limitation notes |
 | Expanded environment diagnostics | Implemented in 0.5.0 | UID/GID, root state, writable paths, locale/timezone, clock, memory, tools, and filesystem free-space checks |
 | Compatibility command aliases | Implemented in 0.5.0 | Read-only `inspect` and `image` aliases preserve existing command semantics |
+| Source mutation regression coverage | Implemented in 0.5.0 | Verification detects changes after inventory rather than treating mutated evidence as valid |
+| Output collision protection | Implemented in 0.5.0 | Carving refuses to overwrite an existing artifact and closes handles on collision |
+| Clean npm-pack smoke test | Implemented in 0.5.0 | Packs, installs, invokes `doctor`, and creates a case from a clean temporary installation |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule

@@ -4,7 +4,7 @@
 
 No implementation commits or source modules were lost. The discrepancy was caused by a stale manually maintained headline counter in `IMPLEMENTATION-STATUS.md`. The repository retained the complete feature history from the hardened foundation through the 1.3.0 catalog/report-index block and the later 0.5.0 ext/JBD2 and catalog additions.
 
-The authoritative count is the number of rows marked `Implemented` in the status table, provided each row has code, tests, documentation, and a release/audit commit. The current ledger contains **48 implemented rows out of 280**, equal to **17.1%**.
+The authoritative count is the number of rows marked `Implemented` in the status table, provided each row has code, tests, documentation, and a release/audit commit. The current ledger contains **51 implemented rows out of 280**, equal to **18.2%**.
 
 ## Reconciliation evidence
 
@@ -30,7 +30,8 @@ The authoritative count is the number of rows marked `Implemented` in the status
 | `80dae36` | 2 | Dedicated ext orphan-chain and JBD2 analyzers |
 | `b33debd` | 3 | Result semantics, method catalog, compatibility notes |
 | `7a08ca0` | 2 | Expanded diagnostics and command aliases |
-| **Total** | **48** | **17.1% of 280** |
+| `NEXT` | 3 | Source mutation coverage, output collision protection, and clean npm-pack smoke test |
+| **Total** | **51** | **18.2% of 280** |
 
 ## Stage gates
 
