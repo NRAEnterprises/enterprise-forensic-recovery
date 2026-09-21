@@ -53,10 +53,12 @@ Register sources before changing them. Do not overwrite the original archive or 
 recovery source image ./cases/account-recovery /path/to/source.img ./images/source-copy.img
 recovery source image ./cases/account-recovery /path/to/source.img ./images/source-copy.img --resume
 recovery source image ./cases/account-recovery /path/to/source.img ./images/source-copy-native.img --native
+recovery source image ./cases/account-recovery /path/to/source.img ./images/source-copy.img --dry-run
 recovery source inspect /path/to/source.img
 ```
 
 The source is opened without write access. The destination must not be inside a registered source path. A resumed image hashes the existing prefix and the newly copied range, records the copied offset and byte count, and writes an image report under `reports/`.
+The dry-run form validates the case/source/output relationship and reports the selected engine and write policy without opening or creating the image output.
 
 `source inspect` performs header-level triage without mounting the source. It reports MBR/GPT signatures, block-device flags, and selected filesystem header hints. It is not a filesystem parser.
 
