@@ -2,7 +2,16 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 30/280 items (10.7%).** This count includes the dedicated ext orphan-chain walker, JBD2 transaction evidence analyzer, formal result-status semantics, recovery-method classification, release compatibility catalog, expanded environment diagnostics, and compatibility aliases.
+**Audited completion: 48/280 items (17.1%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
+
+## Audit gates
+
+| Gate | Threshold | Required action |
+|---|---:|---|
+| General audit 1 | 30% / 84 rows | Review moderate, high, and critical findings; catalog low-priority findings without blocking progression |
+| General audit 2 | 60% / 168 rows | Re-audit parser correctness, evidence provenance, portability, and destructive-operation isolation |
+| Release-readiness audit | 90% / 252 rows | Verify packaging, installation, security, capability reconciliation, and release artifacts |
+| Deep-scale final audit | 100% / 280 rows | Run full tests across supported platforms, fixtures, malformed inputs, mutation, safety, and release workflows |
 
 ## Current release
 
