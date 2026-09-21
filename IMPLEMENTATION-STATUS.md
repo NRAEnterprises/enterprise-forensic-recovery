@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 53/280 items (18.9%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
+**Audited completion: 54/280 items (19.3%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
 
 ## Audit gates
 
@@ -79,6 +79,7 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Clean npm-pack smoke test | Implemented in 0.5.0 | Packs, installs, invokes `doctor`, and creates a case from a clean temporary installation |
 | Image source/output verification | Implemented in 0.5.0 | Cross-engine SHA-256 and byte-count comparison for Node, native, and resumed imaging |
 | Archive tool failure reporting | Implemented in 0.5.0 | Missing host utilities produce explicit unsupported evidence and remediation text |
+| Automated progress consistency gate | Implemented in 0.5.0 | `npm run progress:check` recomputes implemented rows and rejects stale headline markers |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
