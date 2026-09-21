@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 55/280 items (19.6%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
+**Audited completion: 56/280 items (20.0%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
 
 ## Audit gates
 
@@ -81,6 +81,7 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Archive tool failure reporting | Implemented in 0.5.0 | Missing host utilities produce explicit unsupported evidence and remediation text |
 | Automated progress consistency gate | Implemented in 0.5.0 | `npm run progress:check` recomputes implemented rows and rejects stale headline markers |
 | Archive extraction dry-run | Implemented in 0.5.0 | `--dry-run` plans outputs and policy decisions without creating destination files |
+| Tool version diagnostics | Implemented in 0.5.0 | `doctor` reports detected host-tool versions alongside availability booleans |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
