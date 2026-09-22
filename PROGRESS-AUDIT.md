@@ -4,7 +4,7 @@
 
 No implementation commits or source modules were lost. The discrepancy was caused by a stale manually maintained headline counter in `IMPLEMENTATION-STATUS.md`. The repository retained the complete feature history from the hardened foundation through the 1.3.0 catalog/report-index block and the later 0.5.0 ext/JBD2 and catalog additions.
 
-The authoritative count is the number of rows marked `Implemented` in the status table, provided each row has code, tests, documentation, and a release/audit commit. The current ledger contains **61 implemented rows out of 280**, equal to **21.8%**.
+The authoritative count is the number of rows marked `Implemented` in the status table, provided each row has code, tests, documentation, and a release/audit commit. The current ledger contains **64 implemented rows out of 280**, equal to **22.9%**.
 
 ## Reconciliation evidence
 
@@ -40,7 +40,8 @@ The authoritative count is the number of rows marked `Implemented` in the status
 | `NEXT-8` | 1 | Raw-image dry-run planning |
 | `NEXT-9` | 1 | Carving dry-run planning |
 | `NEXT-10` | 1 | NTFS deleted-recovery dry-run planning |
-| **Total** | **61** | **21.8% of 280** |
+| `NEXT-11` | 3 | NTFS journal, ext metadata, and SQLite page-recovery dry-run planning |
+| **Total** | **64** | **22.9% of 280** |
 
 ## Stage gates
 

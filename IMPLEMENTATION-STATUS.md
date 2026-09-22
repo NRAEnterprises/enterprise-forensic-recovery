@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 61/280 items (21.8%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
+**Audited completion: 64/280 items (22.9%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
 
 ## Audit gates
 
@@ -87,6 +87,9 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Raw-image dry-run planning | Implemented in 0.5.0 | Image planning reports engine, output, overwrite/resume policy, and performs no writes |
 | Carving dry-run planning | Implemented in 0.5.0 | Signature scanning reports planned artifacts without creating output files |
 | NTFS deleted-recovery dry-run | Implemented in 0.5.0 | MFT scan bounds and output path are planned without creating recovery artifacts |
+| NTFS journal dry-run | Implemented in 0.5.0 | Journal candidates and output path are planned without reconstructing streams |
+| ext metadata dry-run | Implemented in 0.5.0 | Orphan/JBD2 analysis can be reviewed without writing metadata reports |
+| SQLite page-recovery dry-run | Implemented in 0.5.0 | Structural page scan and output path are planned without writing page evidence |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
