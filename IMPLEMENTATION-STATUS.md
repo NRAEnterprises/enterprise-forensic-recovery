@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 59/280 items (21.1%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
+**Audited completion: 60/280 items (21.4%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
 
 ## Audit gates
 
@@ -85,6 +85,7 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Duplicate case registration coverage | Implemented in 0.5.0 | Case creation refuses to replace an existing case manifest |
 | Special-file and symlink safety coverage | Implemented in 0.5.0 | Inventory records FIFOs/special files and does not follow symlinks by default |
 | Raw-image dry-run planning | Implemented in 0.5.0 | Image planning reports engine, output, overwrite/resume policy, and performs no writes |
+| Carving dry-run planning | Implemented in 0.5.0 | Signature scanning reports planned artifacts without creating output files |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule

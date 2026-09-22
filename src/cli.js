@@ -75,7 +75,7 @@ export async function main(args) {
   if (command === 'identify') { output(await identifyCase(value(target, 0, 'case directory')), options); return EXIT.OK; }
   if (command === 'validate') { const result = await validateArchives(value(target, 0, 'case directory')); output(result, options); return result.summary.corrupted ? EXIT.PARTIAL : EXIT.OK; }
   if (command === 'extract') { const result = await extractArchives(value(target, 0, 'case directory'), value(rest, 0, 'output directory'), { overwrite: Boolean(options.overwrite), dryRun: Boolean(options.dry_run) }); output(result, options); return result.results.some(x => x.status === 'partial') ? EXIT.PARTIAL : EXIT.OK; }
-  if (command === 'carve') { const result = await carveFile(value(target, 0, 'input file'), value(rest, 0, 'output directory'), { maxArtifacts: options.max_artifacts ? Number(options.max_artifacts) : undefined }); output(result, options); return EXIT.OK; }
+  if (command === 'carve') { const result = await carveFile(value(target, 0, 'input file'), value(rest, 0, 'output directory'), { maxArtifacts: options.max_artifacts ? Number(options.max_artifacts) : undefined, dryRun: Boolean(options.dry_run) }); output(result, options); return EXIT.OK; }
   if (command === 'analyze' && sub === 'project') { output(await analyzeProjects(value(rest, 0, 'case directory')), options); return EXIT.OK; }
   if (command === 'verify') { const result = await verifyCase(value(target, 0, 'case directory')); output(result, options); return result.ok ? EXIT.OK : EXIT.PARTIAL; }
   if (command === 'audit' && sub === 'verify') { const result = await verifyAudit(value(rest, 0, 'case directory')); output(result, options); return result.ok ? EXIT.OK : EXIT.PARTIAL; }
