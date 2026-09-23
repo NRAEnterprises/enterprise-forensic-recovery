@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 65/280 items (23.2%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
+**Audited completion: 66/280 items (23.6%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
 
 ## Audit gates
 
@@ -91,6 +91,7 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | ext metadata dry-run | Implemented in 0.5.0 | Orphan/JBD2 analysis can be reviewed without writing metadata reports |
 | SQLite page-recovery dry-run | Implemented in 0.5.0 | Structural page scan and output path are planned without writing page evidence |
 | Hash-based carving provenance | Implemented in 0.5.0 | Carved artifacts include source SHA-256 provenance and deterministic collision-safe names |
+| Carved source-range mapping | Implemented in 0.5.0 | Every carved artifact records start offset, end offset, and byte length |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
