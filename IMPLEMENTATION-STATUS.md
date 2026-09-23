@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 68/280 items (24.3%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
+**Audited completion: 69/280 items (24.6%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
 
 ## Audit gates
 
@@ -94,6 +94,7 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Carved source-range mapping | Implemented in 0.5.0 | Every carved artifact records start offset, end offset, and byte length |
 | Parser-based carving validation | Implemented in 0.5.0 | Bounded structural checks prevent header-only hits from being labeled fully carved |
 | Duplicate archive path rejection | Implemented in 0.5.0 | Extraction refuses duplicate normalized member names and reports an unsupported safety finding |
+| Archive extraction provenance | Implemented in 0.5.0 | Successful extraction records validator, quota, path-safety, duplicate-path, and entry-count evidence |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
