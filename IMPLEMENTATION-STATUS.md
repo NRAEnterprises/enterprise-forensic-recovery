@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 73/280 items (26.1%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
+**Audited completion: 74/280 items (26.4%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
 
 ## Audit gates
 
@@ -99,6 +99,7 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Archive validation provenance | Implemented in 0.5.0 | Validation reports tool, checks performed, entry counts, path-safety, duplicate-path, and error evidence |
 | Reserved-name archive safety | Implemented in 0.5.0 | Extraction rejects Windows device names and ambiguous trailing-dot/space member paths |
 | Tar link preflight safety | Implemented in 0.5.0 | Tar symlink and hardlink members are rejected before output directories or extracted files are created |
+| Archive depth quota enforcement | Implemented in 0.5.0 | Configured `maxArchiveDepth` is enforced during validation and extraction before writes |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
