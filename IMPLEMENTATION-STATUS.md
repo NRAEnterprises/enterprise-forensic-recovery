@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 70/280 items (25.0%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
+**Audited completion: 71/280 items (25.4%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
 
 ## Audit gates
 
@@ -96,6 +96,7 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Duplicate archive path rejection | Implemented in 0.5.0 | Extraction refuses duplicate normalized member names and reports an unsupported safety finding |
 | Archive extraction provenance | Implemented in 0.5.0 | Successful extraction records validator, quota, path-safety, duplicate-path, and entry-count evidence |
 | Expanded carving signature coverage | Implemented in 0.5.0 | Streaming carving recognizes all defined archive, document, executable, media, and container signatures |
+| Archive validation provenance | Implemented in 0.5.0 | Validation reports tool, checks performed, entry counts, path-safety, duplicate-path, and error evidence |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule

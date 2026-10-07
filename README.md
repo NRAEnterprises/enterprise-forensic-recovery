@@ -95,7 +95,7 @@ recovery identify ./cases/account-recovery
 recovery validate ./cases/account-recovery
 ```
 
-Inventory records paths, sizes, timestamps, modes, SHA-256 hashes, signatures, and extension hints. Identification reports known formats and extension/content mismatches. Archive validation tests ZIP and TAR files, validates GZIP streams when available, and reports corrupted or unsupported containers.
+Inventory records paths, sizes, timestamps, modes, SHA-256 hashes, signatures, and extension hints. Identification reports known formats and extension/content mismatches. Archive validation tests ZIP and TAR files, validates GZIP streams when available, and reports corrupted or unsupported containers. Each validation result records the tool, checks performed, member counts where available, path-safety and duplicate-path outcomes, and validation errors.
 
 ### 4. Extract valid ZIP archives to a separate directory
 
@@ -113,7 +113,7 @@ The dry-run form reports planned outputs, archive types, overwrite policy, and o
 recovery carve /path/to/00.dat ./recovered/carved-00-dat
 ```
 
-Carving scans for selected PDF, PNG, JPEG, GIF, ZIP, and SQLite signatures. Results preserve source offsets but may not preserve filenames, directories, file boundaries, or version history. Treat carved outputs as uncertain until independently validated.
+Carving scans the defined archive, document, media, executable, and container signatures in bounded chunks. Results preserve source SHA-256, deterministic artifact names, source start/end offsets, byte lengths, and bounded structural validation. Treat outputs as uncertain when a header is found without sufficient structure; carving does not preserve filenames, directories, or version history.
 
 ### 6. Analyze project folders
 
