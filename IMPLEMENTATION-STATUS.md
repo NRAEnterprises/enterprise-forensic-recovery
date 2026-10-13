@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 75/280 items (26.8%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
+**Audited completion: 76/280 items (27.1%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
 
 ## Audit gates
 
@@ -101,6 +101,7 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Tar link preflight safety | Implemented in 0.5.0 | Tar symlink and hardlink members are rejected before output directories or extracted files are created |
 | Archive depth quota enforcement | Implemented in 0.5.0 | Configured `maxArchiveDepth` is enforced during validation and extraction before writes |
 | ZIP expanded-byte quota enforcement | Implemented in 0.5.0 | ZIP listing sizes are summed and compared with `maxArchiveExpandedBytes` before extraction writes |
+| Maintained ZIP metadata adapter | Implemented in 0.5.0 | `@zip.js/zip.js` records ZIP member sizes, directories, and encryption flags while host tools retain CRC/write fallback |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
