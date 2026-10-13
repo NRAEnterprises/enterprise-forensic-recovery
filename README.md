@@ -95,7 +95,7 @@ recovery identify ./cases/account-recovery
 recovery validate ./cases/account-recovery
 ```
 
-Inventory records paths, sizes, timestamps, modes, SHA-256 hashes, signatures, and extension hints. Identification reports known formats and extension/content mismatches. Archive validation tests ZIP and TAR files, validates GZIP streams when available, and reports corrupted or unsupported containers. ZIP metadata is parsed with maintained `@zip.js/zip.js`; host `unzip` remains the CRC-validation and extraction fallback. Each validation result records the tool, metadata engine, checks performed, member counts where available, encryption flags, path-safety and duplicate-path outcomes, and validation errors.
+Inventory records paths, sizes, timestamps, modes, SHA-256 hashes, signatures, and extension hints. Identification reports known formats and extension/content mismatches. Archive validation tests ZIP and TAR files, validates GZIP streams when available, and reports corrupted or unsupported containers. ZIP metadata is parsed with maintained `@zip.js/zip.js`; host `unzip` remains the CRC-validation and extraction fallback. If a ZIP central directory is damaged, bounded local-header scanning records recoverable member evidence as `partial` rather than claiming a complete archive. Each validation result records the tool, metadata engine, checks performed, member counts where available, encryption flags, path-safety and duplicate-path outcomes, and validation errors.
 
 ### 4. Extract valid ZIP archives to a separate directory
 
