@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 81/280 items (28.9%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
+**Audited completion: 84/280 items (30.0%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
 
 ## Audit gates
 
@@ -107,6 +107,9 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Encrypted ZIP reporting | Implemented in 0.5.0 | Readable encrypted metadata is classified as encrypted/key-required without attempting credentialed extraction |
 | Partial GZIP decompression | Implemented in 0.5.0 | Truncated streams preserve bounded output bytes with explicit partial status and recovered-byte provenance |
 | BZIP2 and XZ stream recovery | Implemented in 0.5.0 | Host-tool validation and bounded extraction support `.bz2`/`.bzip2` and `.xz` streams with provenance |
+| Unsupported container identification | Implemented in 0.5.0 | RAR, Zstandard, and 7-Zip signatures are identified and reported unavailable without false recovery claims |
+| ISO container classification | Implemented in 0.5.0 | `.iso` sources are classified and reported unavailable when no compatible validator is installed |
+| CPIO container classification | Implemented in 0.5.0 | `.cpio` sources and CPIO magic are classified and reported unavailable without false corruption claims |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
