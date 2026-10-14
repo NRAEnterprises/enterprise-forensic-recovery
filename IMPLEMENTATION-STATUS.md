@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 79/280 items (28.2%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
+**Audited completion: 80/280 items (28.6%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
 
 ## Audit gates
 
@@ -105,6 +105,7 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Split-ZIP part validation | Implemented in 0.5.0 | Numbered `.zNN` parts are ordered and checked for missing, duplicate, and zero-size segments before extraction |
 | ZIP local-header repair evidence | Implemented in 0.5.0 | Damaged central directories yield bounded local-entry evidence with partial status and explicit repair provenance |
 | Encrypted ZIP reporting | Implemented in 0.5.0 | Readable encrypted metadata is classified as encrypted/key-required without attempting credentialed extraction |
+| Partial GZIP decompression | Implemented in 0.5.0 | Truncated streams preserve bounded output bytes with explicit partial status and recovered-byte provenance |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule

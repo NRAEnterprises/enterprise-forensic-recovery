@@ -104,7 +104,7 @@ recovery extract ./cases/account-recovery ./recovered/account-recovery
 recovery extract ./cases/account-recovery ./recovered/account-recovery --dry-run
 ```
 
-Extraction never overwrites existing files because it uses the host `unzip -n` behavior. Damaged entries are reported as partial rather than silently treated as complete. Absolute paths, traversal, duplicate names, Windows device names, ambiguous trailing-dot/space member names, TAR symlink/hardlink members, entries deeper than policy `maxArchiveDepth`, ZIP expansions exceeding `maxArchiveExpandedBytes`, and incomplete numbered `.zNN` split parts are rejected before extraction output is created.
+Extraction never overwrites existing files because it uses the host `unzip -n` behavior. Damaged entries are reported as partial rather than silently treated as complete. For truncated GZIP streams, bytes emitted before the decoder failure are preserved in a bounded output and labeled `partial` with recovered-byte provenance. Absolute paths, traversal, duplicate names, Windows device names, ambiguous trailing-dot/space member names, TAR symlink/hardlink members, entries deeper than policy `maxArchiveDepth`, ZIP expansions exceeding `maxArchiveExpandedBytes`, and incomplete numbered `.zNN` split parts are rejected before extraction output is created.
 The dry-run form reports planned outputs, archive types, overwrite policy, and output quotas without creating the destination directory or writing extracted content.
 
 ### 5. Carve embedded files from an opaque binary
