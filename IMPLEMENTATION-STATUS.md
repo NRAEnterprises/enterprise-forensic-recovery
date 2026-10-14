@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 85/280 items (30.4%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
+**Audited completion: 86/280 items (30.7%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
 
 ## Audit gates
 
@@ -111,6 +111,7 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | ISO container classification | Implemented in 0.5.0 | `.iso` sources are classified and reported unavailable when no compatible validator is installed |
 | CPIO container classification | Implemented in 0.5.0 | `.cpio` sources and CPIO magic are classified and reported unavailable without false corruption claims |
 | NTFS resident DATA recovery | Implemented in 0.5.0 | Deleted MFT candidates recover bounded resident `$DATA` content with explicit resident-copy provenance |
+| FAT allocation-chain analysis | Implemented in 0.5.0 | Bounded FAT32 chain following reports offsets, termination, loops, bad/free/reserved states, and truncation without writes |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
