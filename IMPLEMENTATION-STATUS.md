@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 89/280 items (31.8%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
+**Audited completion: 90/280 items (32.1%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
 
 ## Audit gates
 
@@ -115,6 +115,7 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | FAT directory-entry discovery | Implemented in 0.5.0 | Root-directory entries expose live/deleted state, attributes, sizes, and start clusters linked to chain evidence |
 | FAT subdirectory/LFN traversal | Implemented in 0.5.0 | Bounded FAT32 subdirectory traversal reconstructs long filenames and preserves loop/limit/chain evidence |
 | FAT deleted-entry recovery | Implemented in 0.5.0 | Deleted FAT32 file entries produce bounded evidence artifacts mapped to retained allocation chains with partial-status reporting |
+| ext extent reconstruction | Implemented in 0.5.0 | Bounded ext4 extent trees are parsed and inode data blocks are copied read-only with logical offsets and sparse/unwritten provenance |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
