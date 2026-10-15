@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 93/280 items (33.2%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
+**Audited completion: 94/280 items (33.6%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
 
 ## Audit gates
 
@@ -119,6 +119,7 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | ext directory discovery | Implemented in 0.5.0 | Ext directory records expose active inode/name/type links and bounded slack-based deleted candidates with uncertainty markers |
 | ext inode metadata recovery | Implemented in 0.5.0 | Bounded inode inspection preserves mode, ownership, timestamps, deletion time, size, flags, links, ACL block, and raw hash evidence |
 | ext extended-attribute inspection | Implemented in 0.5.0 | External xattr blocks expose namespace, names, bounded value offsets/bytes, and value hashes without semantic overclaiming |
+| ext external xattr values | Implemented in 0.5.0 | External xattr value blocks are read with bounded offsets, source locations, byte counts, and hashes |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
