@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 99/280 items (35.4%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
+**Audited completion: 100/280 items (35.7%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
 
 ## Audit gates
 
@@ -125,6 +125,7 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | ext directory-tree reconstruction | Implemented in 0.5.0 | Bounded active and deleted-directory relationships are reconstructed with explicit confidence and depth/loop limits |
 | ext directory slack analysis | Implemented in 0.5.0 | Unused directory-record ranges are reported with offsets, lengths, samples, hashes, and explicit non-recoverability caveats |
 | ext free-block bitmap scanning | Implemented in 0.5.0 | Bounded ext block bitmaps produce free ranges, group summaries, byte offsets, and allocation-state provenance |
+| ext free-inode bitmap scanning | Implemented in 0.5.0 | Bounded ext inode bitmaps produce free inode ranges, group summaries, and allocation-state provenance |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
