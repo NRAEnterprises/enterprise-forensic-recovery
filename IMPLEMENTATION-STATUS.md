@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 96/280 items (34.3%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
+**Audited completion: 97/280 items (34.6%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
 
 ## Audit gates
 
@@ -122,6 +122,7 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | ext external xattr values | Implemented in 0.5.0 | External xattr value blocks are read with bounded offsets, source locations, byte counts, and hashes |
 | ext POSIX ACL decoding | Implemented in 0.5.0 | POSIX ACL xattrs expose version, tags, IDs, and permission bits alongside raw value provenance |
 | ext deleted-inode candidate recovery | Implemented in 0.5.0 | Directory slack candidates link to inode metadata and bounded extent artifacts with partial-status propagation |
+| ext directory-tree reconstruction | Implemented in 0.5.0 | Bounded active and deleted-directory relationships are reconstructed with explicit confidence and depth/loop limits |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
