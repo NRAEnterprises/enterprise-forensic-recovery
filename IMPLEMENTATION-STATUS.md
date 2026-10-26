@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 101/280 items (36.1%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
+**Audited completion: 102/280 items (36.4%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
 
 ## Audit gates
 
@@ -127,6 +127,7 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | ext free-block bitmap scanning | Implemented in 0.5.0 | Bounded ext block bitmaps produce free ranges, group summaries, byte offsets, and allocation-state provenance |
 | ext free-inode bitmap scanning | Implemented in 0.5.0 | Bounded ext inode bitmaps produce free inode ranges, group summaries, and allocation-state provenance |
 | ext deleted-inode table scanning | Implemented in 0.5.0 | Bounded inode-table scans report deletion-time and zero-link candidates with offsets, metadata, and raw hashes |
+| ext extra timestamp decoding | Implemented in 0.5.0 | Inode metadata exposes nanoseconds and extended epoch bits while preserving ISO/string compatibility |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
