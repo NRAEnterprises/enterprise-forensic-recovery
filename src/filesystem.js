@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import os from 'node:os';
 import { DEFAULT_POLICY, assertOutputSafe } from './policy.js';
 import { analyzeExtJournal } from './ext-journal.js';
 
