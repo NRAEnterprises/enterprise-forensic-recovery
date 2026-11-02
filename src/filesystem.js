@@ -366,3 +366,27 @@ export async function inspectApfsContainerCheckpoints(source, options = {}) {
   const slotCount = containers.reduce((sum, container) => sum + container.descriptors.length + container.data.length, 0);
   return { schema: 'recovery.apfs-container-checkpoints/v1', generatedAt: new Date().toISOString(), source: file, status: containers.length ? (slotCount ? 'detected' : 'partial') : apple.status, containers, scannedSlots: slotCount, complete: apple.complete && containers.every(container => container.descriptors.length + container.data.length > 0), readOnly: true, replayed: false, limitations: ['Checkpoint slots are bounded raw evidence; no descriptor parsing, object-map reconstruction, transaction replay, or consistency validation is performed', 'Ring field interpretation is retained as format metadata and does not establish a complete chronological checkpoint history', 'Encryption and corrupted-block handling remain keyless and non-destructive'] };
 }
+
+
+export async function inspectApfsObjectHeaders(source, options = {}) {
+  const file = path.resolve(source);
+  const volumes = await inspectApfsVolumeSuperblocks(file, options);
+  const stat = await fs.stat(file);
+  const maxBlocks = options.maxObjectBlocks || 256;
+  const objects = [];
+  for (const volume of volumes.volumes || []) {
+    const blocks = Math.min(maxBlocks, Math.floor(Math.max(0, stat.size - volume.offset) / volume.blockSize));
+    for (let block = 0; block < blocks; block++) {
+      const offset = volume.offset + block * volume.blockSize;
+      const bytes = await sample(file, Math.min(volume.blockSize, Math.max(0, stat.size - offset)), offset);
+      const oid = u64(bytes, 8);
+      const xid = u64(bytes, 16);
+      const type = u32(bytes, 24);
+      const subtype = u32(bytes, 28);
+      if (!oid || !xid || type == null || type === 0) continue;
+      objects.push({ volumeOffset: volume.offset, volumeBlock: volume.block, block, offset, blockSize: volume.blockSize, checksumHex: bytes.subarray(0, 8).toString('hex'), objectId: oid, transactionXid: xid, type, subtype, headerBytes: Math.min(32, bytes.length), headerSha256: crypto.createHash('sha256').update(bytes.subarray(0, Math.min(32, bytes.length))).digest('hex'), evidence: 'apfs-object-header' });
+    }
+  }
+  objects.sort((a, b) => a.offset - b.offset || a.objectId - b.objectId);
+  return { schema: 'recovery.apfs-object-headers/v1', generatedAt: new Date().toISOString(), source: file, status: objects.length ? 'detected' : volumes.status, volumes: volumes.volumes || [], objects, scannedBlocks: (volumes.volumes || []).reduce((sum, volume) => sum + Math.min(maxBlocks, Math.floor(Math.max(0, stat.size - volume.offset) / volume.blockSize)), 0), complete: volumes.complete && objects.length > 0, readOnly: true, replayed: false, limitations: ['Object types and subtypes are reported as raw numeric values; no object-map, B-tree, checkpoint replay, or semantic filesystem reconstruction is performed', 'Bounded scanning may omit objects beyond maxObjectBlocks and does not establish a complete object inventory', 'Checksums are preserved as bytes but not validated in this preliminary adapter'] };
+}
