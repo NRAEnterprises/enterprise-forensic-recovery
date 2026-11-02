@@ -61,3 +61,9 @@ The native parity gap was resolved for the ARM64 audit environment. The availabl
 - Progress ledger remains **103/280 audited rows (36.8%)**
 
 The previously cataloged low native-fixture finding is resolved for ARM64. The pre-existing Linux x64 fixture remains packaged for x64 consumers; cross-architecture execution was not attempted in the ARM64 environment.
+
+## Full regression architecture run — 2026-11-02
+
+The complete regression suite was run on the current `aarch64` / `linux-arm64` environment. Node tests completed with **57 passed, 0 failed, 0 skipped**. The native Rust crate compiled in release mode and its test target completed with **0 failed** (the crate currently contains no Rust unit tests). Native parity executed successfully through the ARM64 fixture. Package smoke, dependency audit, and progress reconciliation also passed: `npm run pack:smoke`, `npm audit --omit=dev --audit-level=moderate` with 0 vulnerabilities, and `npm run progress:check` at 103/280 audited rows.
+
+The packaged `linux-x64` binary was inspected and identified as a valid x86-64 ELF, but this environment is ARM64 and has no `qemu-x86_64`, Docker, or Podman runtime available. Therefore x86-64 execution coverage could not be run here. The x64 fixture remains statically verified and packaged, but cross-architecture parity is **not claimed**. A separate x86-64 runner or emulator is required to close that coverage item.
