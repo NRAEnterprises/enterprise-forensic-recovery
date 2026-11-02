@@ -404,3 +404,15 @@ export async function inspectApfsObjectMaps(source, options = {}) {
   }
   return { schema: 'recovery.apfs-object-maps/v1', generatedAt: new Date().toISOString(), source: file, status: maps.length ? 'detected' : inventory.status, maps, objectsScanned: inventory.objects?.length || 0, complete: inventory.complete, readOnly: true, rebuilt: false, limitations: ['Object-map fields are reported as bounded raw candidates and are not validated against the container or checkpoint rings', 'No object-map lookup, snapshot resolution, B-tree traversal, ownership reconstruction, or metadata replay is performed', 'Object type classification remains preliminary and format-specific semantic validation is pending'] };
 }
+
+
+export async function inspectApfsSnapshots(source, options = {}) {
+  const file = path.resolve(source);
+  const maps = await inspectApfsObjectMaps(file, options);
+  const inventory = await inspectApfsObjectHeaders(file, options);
+  const references = maps.maps.filter(map => map.snapshotCount > 0).map(map => ({ objectMapOffset: map.offset, objectMapId: map.objectId, transactionXid: map.transactionXid, snapshotCount: map.snapshotCount, snapshotTreeObjectId: map.snapshotTreeObjectId, evidence: 'apfs-object-map-snapshot-reference' }));
+  const metadataCandidates = (inventory.objects || []).filter(object => (object.type & 0x7fffffff) === 0x02 && (object.type & 0x80000000) !== 0).map(object => ({ offset: object.offset, objectId: object.objectId, transactionXid: object.transactionXid, type: object.type, subtype: object.subtype, headerSha256: object.headerSha256, evidence: 'apfs-snapshot-metadata-candidate' }));
+  references.sort((a, b) => a.objectMapOffset - b.objectMapOffset);
+  metadataCandidates.sort((a, b) => a.offset - b.offset);
+  return { schema: 'recovery.apfs-snapshots/v1', generatedAt: new Date().toISOString(), source: file, status: references.length || metadataCandidates.length ? 'detected' : maps.status, references, metadataCandidates, complete: maps.complete && inventory.complete, readOnly: true, reconstructed: false, replayed: false, limitations: ['Snapshot references and type candidates are raw evidence only; snapshot names, dates, root resolution, object-map lookup, and mounted-view reconstruction are not implemented', 'No snapshot is restored, replayed, mounted, or written', 'Absence of candidates does not prove snapshot absence because scanning is bounded and format validation is preliminary'] };
+}
