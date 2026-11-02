@@ -274,3 +274,24 @@ export async function inspectApfsVolumeSuperblocks(source, options = {}) {
   volumes.sort((a, b) => a.offset - b.offset);
   return { schema: 'recovery.apfs-volume-inspection/v1', generatedAt: new Date().toISOString(), source: file, status: volumes.length ? 'detected' : 'partial', containers: apfsContainers, volumes, scannedBlocks: apfsContainers.reduce((sum, candidate) => sum + Math.min(maxBlocks, Math.ceil(Math.min(candidate.blockCount * candidate.blockSize, options.maxScanBytes || 512 * 1024 * 1024) / candidate.blockSize)), 0), complete: container.complete && volumes.length > 0, readOnly: true, limitations: ['APFS volume detection does not parse object maps, volume names, snapshots, encryption state, catalog records, or deleted files', 'Scanning is bounded by maxApfsBlocks and maxScanBytes; absence of APSB evidence does not prove volume absence'] };
 }
+
+
+export async function inspectApfsVolumeNamesAndCheckpoints(source, options = {}) {
+  const file = path.resolve(source);
+  const volumeEvidence = await inspectApfsVolumeSuperblocks(file, options);
+  const stat = await fs.stat(file);
+  const containers = [];
+  for (const container of volumeEvidence.containers || []) {
+    const header = await sample(file, Math.min(container.blockSize, Math.max(0, stat.size - container.offset)), container.offset);
+    containers.push({ offset: container.offset, blockSize: container.blockSize, checkpointXid: u64(header, 16), checkpointDescriptorBase: u64(header, 96), checkpointDataBase: u64(header, 104), checkpointDescriptorNext: u64(header, 112), checkpointDataNext: u64(header, 120), checkpointDescriptorIndex: u32(header, 128), checkpointDescriptorLength: u32(header, 132), checkpointDataIndex: u32(header, 136), checkpointDataLength: u32(header, 140), evidence: 'apfs-container-checkpoint-window' });
+  }
+  const volumes = [];
+  for (const volume of volumeEvidence.volumes || []) {
+    const header = await sample(file, Math.min(volume.blockSize, Math.max(0, stat.size - volume.offset)), volume.offset);
+    const rawName = header.subarray(336, Math.min(header.length, 592));
+    const zero = rawName.indexOf(0);
+    const volumeName = rawName.subarray(0, zero < 0 ? rawName.length : zero).toString('utf8').replaceAll('\u0000', '').trim() || null;
+    volumes.push({ ...volume, volumeName, checkpointXid: u64(header, 16), checkpointSource: 'apfs-object-header-xid', metadataHeaderSha256: crypto.createHash('sha256').update(header).digest('hex'), evidence: 'apfs-volume-name-and-checkpoint' });
+  }
+  return { schema: 'recovery.apfs-volume-metadata/v1', generatedAt: new Date().toISOString(), source: file, status: volumes.length ? 'detected' : volumeEvidence.status, containers, volumes, complete: volumeEvidence.complete && volumes.length === (volumeEvidence.volumes || []).length, readOnly: true, limitations: ['Checkpoint XIDs identify object-header transactions but are not replayed or interpreted as a complete timeline', 'Volume-name decoding is bounded UTF-8 evidence and does not validate catalog or object-map ownership', 'APFS encryption, snapshots, object maps, metadata trees, and deleted-record recovery remain unimplemented'] };
+}
