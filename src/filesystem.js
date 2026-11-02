@@ -170,3 +170,55 @@ export async function inspectFatOrphansWithCarving(source, options = {}) { const
 export async function reconcileFatCarvingWithDirectories(source, options = {}) { const file = path.resolve(source); const carving = await inspectFatOrphansWithCarving(file, options); const directories = await inspectFatSubdirectories(file, options); const orphanSlack = await inspectFatOrphansAndSlack(file, options); const boot = carving.filesystem; if (!boot || boot.fatType === 'fat32') return { schema: 'recovery.fat-carving-reconciliation/v1', generatedAt: new Date().toISOString(), source: file, filesystem: boot, relationships: [], complete: false, readOnly: true, limitations: ['FAT32 carving reconciliation requires a FAT32-aware adapter'] }; const entries = directories.entries.filter(entry => entry.startCluster >= 2); const allocation = boot.fatType === 'fat12' ? await analyzeFat12Allocation(file, { ...options, startClusters: entries.map(entry => entry.startCluster) }) : await analyzeFatAllocation(file, { ...options, discoverEntries: false, startClusters: entries.map(entry => entry.startCluster) }); const clusterOwners = new Map(); for (const chain of allocation.chains) { const entry = entries.find(item => item.startCluster === chain.start); for (const item of chain.clusters || []) { const cluster = typeof item === 'number' ? item : item.cluster; if (!clusterOwners.has(cluster)) clusterOwners.set(cluster, []); clusterOwners.get(cluster).push({ offset: entry?.offset ?? null, path: entry?.path || entry?.name || entry?.shortName || null, deleted: Boolean(entry?.deleted), startCluster: chain.start }); } } const relationships = carving.matches.map(match => { const owners = clusterOwners.get(match.cluster) || []; const slack = orphanSlack.slackRanges.find(range => match.sourceOffset >= range.byteStart && match.sourceOffset < range.byteEndExclusive); let relationship = owners.length ? (owners.some(owner => owner.deleted) ? 'deleted-entry-chain' : 'directory-linked') : 'unlinked-orphan'; if (slack) relationship = 'slack-space-signature'; return { ...match, relationship, directoryOwners: owners, slackRange: slack || null, confidence: relationship === 'directory-linked' ? 'medium' : relationship === 'deleted-entry-chain' ? 'medium' : 'low', evidence: 'fat-carving-directory-reconciliation' }; }); return { schema: 'recovery.fat-carving-reconciliation/v1', generatedAt: new Date().toISOString(), source: file, filesystem: boot, relationships, counts: relationships.reduce((counts, item) => { counts[item.relationship] = (counts[item.relationship] || 0) + 1; return counts; }, {}), directoryEntries: entries.length, carvedMatches: carving.matches.length, complete: carving.complete && directories.complete && allocation.complete, readOnly: true, limitations: ['Unlinked orphan matches do not establish a directory name or ownership; confidence remains low until structural validation, chain continuity, and content extraction are independently established'] }; }
 
 export async function validateFatReconciliationImages(sources, options = {}) { const inputs = Array.isArray(sources) ? sources : [sources]; const cases = []; for (const source of inputs.slice(0, options.maxImages || 1000)) { const file = path.resolve(source); const before = await fs.stat(file); let result = null; let error = null; try { result = await reconcileFatCarvingWithDirectories(file, options); } catch (caught) { error = caught instanceof Error ? caught.message : String(caught); } const after = await fs.stat(file); const violations = []; const sourceUnchanged = before.size === after.size && before.mtimeMs === after.mtimeMs && before.ino === after.ino; if (!sourceUnchanged) violations.push('source-modified'); if (result) { if (result.schema !== 'recovery.fat-carving-reconciliation/v1') violations.push('unexpected-schema'); const allowed = new Set(['directory-linked', 'deleted-entry-chain', 'slack-space-signature', 'unlinked-orphan']); for (const match of result.relationships || []) { if (!allowed.has(match.relationship)) violations.push('unknown-relationship'); if (!Number.isInteger(match.sourceOffset) || match.sourceOffset < 0 || match.sourceOffset >= before.size) violations.push('match-offset-out-of-range'); if (!Number.isInteger(match.cluster) || match.cluster < 2) violations.push('invalid-cluster'); if (!['low', 'medium'].includes(match.confidence)) violations.push('invalid-confidence'); } } cases.push({ source: file, size: before.size, status: error ? 'error' : violations.length ? 'failed' : result.complete ? 'passed' : 'partial', error, violations, sourceUnchanged, relationshipCount: result?.relationships?.length || 0, counts: result?.counts || {}, complete: Boolean(result?.complete), readOnly: true }); } return { schema: 'recovery.fat-reconciliation-validation/v1', generatedAt: new Date().toISOString(), cases, passed: cases.filter(item => item.status === 'passed').length, partial: cases.filter(item => item.status === 'partial').length, failed: cases.filter(item => item.status === 'failed' || item.status === 'error').length, complete: cases.length === inputs.length && cases.every(item => item.status === 'passed' || item.status === 'partial'), readOnly: true, limitations: ['A passed invariant check does not prove recovered content correctness; corrupted-image fixtures should include independently known expected signatures and ownership where available'] }; }
+
+
+export async function runFatRecoveryEvidencePipeline(source, outputDir, options = {}) {
+  const file = path.resolve(source);
+  const output = path.resolve(outputDir);
+  const before = await fs.stat(file);
+  const startedAt = new Date().toISOString();
+  const stageErrors = [];
+  const runStage = async (name, operation) => {
+    try { return { value: await operation(), error: null }; } catch (error) {
+      const detail = { name, message: error instanceof Error ? error.message : String(error) };
+      stageErrors.push(detail);
+      return { value: null, error: detail };
+    }
+  };
+  const base = await runStage('base-pipeline', () => runFatRecoveryPipeline(file, output, { ...options, dryRun: true }));
+  const diagnosis = await runStage('input-diagnosis', () => diagnoseFatInput(file, options));
+  const subdirectories = await runStage('directory-reconstruction', () => inspectFatSubdirectories(file, options));
+  const orphanSlack = await runStage('orphan-and-slack-analysis', () => inspectFatOrphansAndSlack(file, options));
+  const carving = await runStage('orphan-carving', () => inspectFatOrphansWithCarving(file, options));
+  const reconciliation = await runStage('directory-reconciliation', () => reconcileFatCarvingWithDirectories(file, options));
+  const validation = await runStage('reconciliation-validation', () => validateFatReconciliationImages([file], options));
+  const after = await fs.stat(file);
+  const sourceUnchanged = before.size === after.size && before.mtimeMs === after.mtimeMs && before.ino === after.ino;
+  const sourceHash = crypto.createHash('sha256');
+  const handle = await fs.open(file, 'r');
+  const hashBuffer = Buffer.alloc(options.hashChunkBytes || 1024 * 1024);
+  try { while (true) { const read = await handle.read(hashBuffer, 0, hashBuffer.length, null); if (!read.bytesRead) break; sourceHash.update(hashBuffer.subarray(0, read.bytesRead)); } } finally { await handle.close(); }
+  const evidence = [
+    ['input-diagnosis', diagnosis], ['directory-reconstruction', subdirectories], ['orphan-and-slack-analysis', orphanSlack],
+    ['orphan-carving', carving], ['directory-reconciliation', reconciliation], ['reconciliation-validation', validation]
+  ];
+  const stages = evidence.map(([name, result]) => ({ name, status: result?.error ? 'error' : result?.value?.complete === false ? 'partial' : result?.value ? 'complete' : 'blocked', error: result?.error || null }));
+  const relationships = (reconciliation.value?.relationships || []).slice().sort((a, b) => (a.sourceOffset ?? Number.MAX_SAFE_INTEGER) - (b.sourceOffset ?? Number.MAX_SAFE_INTEGER) || String(a.format).localeCompare(String(b.format)));
+  const matches = (carving.value?.matches || []).slice().sort((a, b) => a.sourceOffset - b.sourceOffset || a.cluster - b.cluster);
+  const hasIntegrityFailure = !sourceUnchanged;
+  const validationFailed = (validation.value?.failed || 0) > 0 || validation.value?.cases?.some(item => item.violations?.length || item.status === 'error');
+  const hasCarvedEvidence = matches.length > 0;
+  const hasReconstructedEvidence = relationships.some(item => item.relationship === 'directory-linked' || item.relationship === 'deleted-entry-chain');
+  const allComplete = stageErrors.length === 0 && sourceUnchanged && stages.every(stage => stage.status === 'complete');
+  const noFatSupport = Array.isArray(diagnosis.value?.supported) && diagnosis.value.supported.length === 0; const status = hasIntegrityFailure ? 'corrupted' : noFatSupport ? 'unsupported' : validationFailed ? 'partial' : allComplete ? 'verified' : hasReconstructedEvidence ? 'reconstructed' : hasCarvedEvidence ? 'carved' : stages.some(stage => stage.status === 'partial') ? 'partial' : 'unsupported';
+  return {
+    schema: 'recovery.fat-pipeline/v4', generatedAt: startedAt, source: file, output, status,
+    sourceProvenance: { path: file, size: before.size, inode: before.ino, sha256: sourceHash.digest('hex'), hashAlgorithm: 'sha256', sourceUnchanged },
+    basePipeline: base.value, diagnosis: diagnosis.value, subdirectories: subdirectories.value,
+    orphanSlack: orphanSlack.value, carving: carving.value, reconciliation: reconciliation.value,
+    validation: validation.value, matches, relationships, stages, stageErrors,
+    verification: { sourceUnchanged, noSourceWrites: sourceUnchanged, validationFailed, allStagesComplete: allComplete, dryRun: true, readOnlySource: true },
+    complete: allComplete && !validationFailed, readOnlySource: true,
+    limitations: ['Signature matches are evidentiary hints and do not establish file ownership or complete recoverability', 'The evidence pipeline is read-only and does not perform repair, allocation updates, or artifact extraction', 'Full fixture and malformed-input testing remains deferred until the declared benchmark']
+  };
+}
