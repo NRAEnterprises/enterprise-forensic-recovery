@@ -222,3 +222,33 @@ export async function runFatRecoveryEvidencePipeline(source, outputDir, options 
     limitations: ['Signature matches are evidentiary hints and do not establish file ownership or complete recoverability', 'The evidence pipeline is read-only and does not perform repair, allocation updates, or artifact extraction', 'Full fixture and malformed-input testing remains deferred until the declared benchmark']
   };
 }
+
+
+export async function inspectAppleFilesystem(source, options = {}) {
+  const file = path.resolve(source);
+  const stat = await fs.stat(file);
+  const maxScanBytes = Math.min(stat.size, options.maxScanBytes || 8 * 1024 * 1024);
+  const offsets = [0, 1024, 4096, 65536].filter((offset, index, values) => offset < maxScanBytes && values.indexOf(offset) === index);
+  const candidates = [];
+  for (const offset of offsets) {
+    const header = await sample(file, Math.min(4096, maxScanBytes - offset), offset);
+    if (header.subarray(32, 36).toString('ascii') === 'NXSB') {
+      const blockSize = u32(header, 36);
+      const blockCount = u64(header, 40);
+      const features = u64(header, 16);
+      const readOnlyFeatures = u64(header, 24);
+      candidates.push({ type: 'apfs-container', offset, magic: 'NXSB', blockSize, blockCount, features, readOnlyFeatures, headerBytes: header.length, status: blockSize && blockCount ? 'detected' : 'partial', evidence: 'apfs-container-superblock' });
+    }
+    if (header.subarray(0, 2).toString('ascii') === 'H+' || header.subarray(0, 2).toString('ascii') === 'HX') {
+      const signature = header.subarray(0, 2).toString('ascii');
+      const version = u16(header, 2);
+      const blockSize = u32(header, 40);
+      const totalBlocks = u32(header, 44);
+      const freeBlocks = u32(header, 48);
+      candidates.push({ type: signature === 'HX' ? 'hfsx-volume' : 'hfs-plus-volume', offset, signature, version, blockSize, totalBlocks, freeBlocks, headerBytes: header.length, status: blockSize && totalBlocks ? 'detected' : 'partial', evidence: 'hfs-volume-header' });
+    }
+  }
+  const firstHeader = candidates[0];
+  const recognized = candidates.length > 0;
+  return { schema: 'recovery.apple-filesystem-inspection/v1', generatedAt: new Date().toISOString(), source: file, size: stat.size, scan: { maxBytes: maxScanBytes, offsets }, filesystem: firstHeader?.type || null, candidates, status: recognized ? (candidates.some(candidate => candidate.status === 'detected') ? 'detected' : 'partial') : 'unsupported', sourceModified: false, readOnly: true, complete: maxScanBytes === stat.size || recognized, limitations: ['APFS output is container-superblock evidence only; object maps, volumes, snapshots, encryption state, and deleted-record recovery are not implemented', 'HFS+ output is volume-header evidence only; catalog, extents, journal, resource forks, and deleted-entry recovery are not implemented', 'Header recognition does not validate the full container or volume checksum and does not establish mountability or recoverability'] };
+}
