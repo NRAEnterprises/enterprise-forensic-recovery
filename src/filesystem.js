@@ -327,3 +327,42 @@ export async function inspectApfsCryptoStates(source, options = {}) {
   }
   return { schema: 'recovery.apfs-crypto-state/v1', generatedAt: new Date().toISOString(), source: file, status: volumes.length ? 'assessed-keyless' : metadata.status, volumes, complete: metadata.complete && volumes.length === (metadata.volumes || []).length, readOnly: true, keyMaterialProcessed: false, limitations: ['Crypto-state parsing is keyless and reports raw feature/metadata indicators only; it does not decrypt, derive, validate, request, store, or expose keys', 'Non-zero metadata bytes are not by themselves proof of encryption because format-specific interpretation and object-map validation are not implemented', 'APFS encryption, keybags, snapshots, object maps, and encrypted-file recovery remain unimplemented'] };
 }
+
+
+export async function inspectApfsContainerCheckpoints(source, options = {}) {
+  const file = path.resolve(source);
+  const apple = await inspectAppleFilesystem(file, options);
+  const stat = await fs.stat(file);
+  const containers = [];
+  for (const candidate of apple.candidates.filter(item => item.type === 'apfs-container' && item.blockSize)) {
+    const header = await sample(file, Math.min(candidate.blockSize, Math.max(0, stat.size - candidate.offset)), candidate.offset);
+    const descriptorBase = u64(header, 96);
+    const dataBase = u64(header, 104);
+    const descriptorNext = u64(header, 112);
+    const dataNext = u64(header, 120);
+    const descriptorIndex = u32(header, 128);
+    const descriptorLength = u32(header, 132);
+    const dataIndex = u32(header, 136);
+    const dataLength = u32(header, 140);
+    const maxSlots = options.maxCheckpointSlots || 32;
+    const descriptors = [];
+    const dataSlots = [];
+    const readSlots = async (base, length, index, kind) => {
+      if (base == null || !length || base >= candidate.blockCount) return [];
+      const count = Math.min(maxSlots, length, candidate.blockCount - base);
+      const slots = [];
+      for (let slot = 0; slot < count; slot++) {
+        const block = (base + slot) % candidate.blockCount;
+        const offset = candidate.offset + block * candidate.blockSize;
+        const bytes = await sample(file, Math.min(candidate.blockSize, Math.max(0, stat.size - offset)), offset);
+        slots.push({ kind, slot, block, offset, activeIndex: index == null ? null : (index + slot) % length, headerBytes: bytes.length, magic: bytes.subarray(32, 36).toString('ascii'), xid: u64(bytes, 16), sha256: crypto.createHash('sha256').update(bytes).digest('hex'), evidence: `apfs-checkpoint-${kind}-slot` });
+      }
+      return slots;
+    };
+    descriptors.push(...await readSlots(descriptorBase, descriptorLength, descriptorIndex, 'descriptor'));
+    dataSlots.push(...await readSlots(dataBase, dataLength, dataIndex, 'data'));
+    containers.push({ offset: candidate.offset, blockSize: candidate.blockSize, blockCount: candidate.blockCount, checkpointXid: u64(header, 16), descriptorRing: { base: descriptorBase, next: descriptorNext, index: descriptorIndex, length: descriptorLength }, dataRing: { base: dataBase, next: dataNext, index: dataIndex, length: dataLength }, descriptors, data: dataSlots, evidence: 'apfs-container-checkpoint-rings' });
+  }
+  const slotCount = containers.reduce((sum, container) => sum + container.descriptors.length + container.data.length, 0);
+  return { schema: 'recovery.apfs-container-checkpoints/v1', generatedAt: new Date().toISOString(), source: file, status: containers.length ? (slotCount ? 'detected' : 'partial') : apple.status, containers, scannedSlots: slotCount, complete: apple.complete && containers.every(container => container.descriptors.length + container.data.length > 0), readOnly: true, replayed: false, limitations: ['Checkpoint slots are bounded raw evidence; no descriptor parsing, object-map reconstruction, transaction replay, or consistency validation is performed', 'Ring field interpretation is retained as format metadata and does not establish a complete chronological checkpoint history', 'Encryption and corrupted-block handling remain keyless and non-destructive'] };
+}
