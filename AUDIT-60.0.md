@@ -49,3 +49,15 @@ This audit was run early at the operator's request before the authoritative audi
 ## Required follow-up at the actual 60% gate
 
 Commit permanent regression fixtures for the FAT pipeline and APFS preliminary adapters, rerun the full malformed-input and mutation suite, build and test the native accelerator parity path, and reconcile the ledger against introducing commits before promoting any rows to audited status.
+
+## Native fixture follow-up — 2026-11-02
+
+The native parity gap was resolved for the ARM64 audit environment. The available Rust toolchain was used to build `native/bin/linux-arm64/recovery-native`; the binary executed and reported the expected usage contract, and package discovery resolved it through `findNativeBinary`.
+
+- `npm test`: **57 passed, 0 failed, 0 skipped**
+- Native accelerator parity test: **passed**
+- `npm run pack:smoke`: passed with the architecture-matched fixture
+- `npm pack --dry-run`: passed; package now contains 30 files, including Linux ARM64 and Linux x64 native fixtures
+- Progress ledger remains **103/280 audited rows (36.8%)**
+
+The previously cataloged low native-fixture finding is resolved for ARM64. The pre-existing Linux x64 fixture remains packaged for x64 consumers; cross-architecture execution was not attempted in the ARM64 environment.
