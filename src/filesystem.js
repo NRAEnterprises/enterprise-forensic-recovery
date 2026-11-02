@@ -295,3 +295,35 @@ export async function inspectApfsVolumeNamesAndCheckpoints(source, options = {})
   }
   return { schema: 'recovery.apfs-volume-metadata/v1', generatedAt: new Date().toISOString(), source: file, status: volumes.length ? 'detected' : volumeEvidence.status, containers, volumes, complete: volumeEvidence.complete && volumes.length === (volumeEvidence.volumes || []).length, readOnly: true, limitations: ['Checkpoint XIDs identify object-header transactions but are not replayed or interpreted as a complete timeline', 'Volume-name decoding is bounded UTF-8 evidence and does not validate catalog or object-map ownership', 'APFS encryption, snapshots, object maps, metadata trees, and deleted-record recovery remain unimplemented'] };
 }
+
+
+export async function inspectApfsCryptoStates(source, options = {}) {
+  const file = path.resolve(source);
+  const metadata = await inspectApfsVolumeNamesAndCheckpoints(file, options);
+  const stat = await fs.stat(file);
+  const volumes = [];
+  for (const volume of metadata.volumes || []) {
+    const header = await sample(file, Math.min(volume.blockSize, Math.max(0, stat.size - volume.offset)), volume.offset);
+    const metadataCrypto = header.subarray(96, Math.min(header.length, 128));
+    const nonZeroCrypto = metadataCrypto.some(byte => byte !== 0);
+    const features = u64(header, 40);
+    const readOnlyFeatures = u64(header, 48);
+    const incompatibleFeatures = u64(header, 56);
+    volumes.push({
+      offset: volume.offset,
+      block: volume.block,
+      volumeName: volume.volumeName,
+      features,
+      readOnlyFeatures,
+      incompatibleFeatures,
+      featureFlags: { featuresHex: features == null ? null : `0x${features.toString(16)}`, readOnlyFeaturesHex: readOnlyFeatures == null ? null : `0x${readOnlyFeatures.toString(16)}`, incompatibleFeaturesHex: incompatibleFeatures == null ? null : `0x${incompatibleFeatures.toString(16)}` },
+      metadataCryptoHex: metadataCrypto.toString('hex'),
+      metadataCryptoPresent: nonZeroCrypto,
+      cryptoState: nonZeroCrypto ? 'crypto-metadata-present-unknown' : 'no-crypto-metadata-observed',
+      keyMaterialProcessed: false,
+      headerSha256: crypto.createHash('sha256').update(header).digest('hex'),
+      evidence: 'apfs-keyless-crypto-state'
+    });
+  }
+  return { schema: 'recovery.apfs-crypto-state/v1', generatedAt: new Date().toISOString(), source: file, status: volumes.length ? 'assessed-keyless' : metadata.status, volumes, complete: metadata.complete && volumes.length === (metadata.volumes || []).length, readOnly: true, keyMaterialProcessed: false, limitations: ['Crypto-state parsing is keyless and reports raw feature/metadata indicators only; it does not decrypt, derive, validate, request, store, or expose keys', 'Non-zero metadata bytes are not by themselves proof of encryption because format-specific interpretation and object-map validation are not implemented', 'APFS encryption, keybags, snapshots, object maps, and encrypted-file recovery remain unimplemented'] };
+}
