@@ -390,3 +390,17 @@ export async function inspectApfsObjectHeaders(source, options = {}) {
   objects.sort((a, b) => a.offset - b.offset || a.objectId - b.objectId);
   return { schema: 'recovery.apfs-object-headers/v1', generatedAt: new Date().toISOString(), source: file, status: objects.length ? 'detected' : volumes.status, volumes: volumes.volumes || [], objects, scannedBlocks: (volumes.volumes || []).reduce((sum, volume) => sum + Math.min(maxBlocks, Math.floor(Math.max(0, stat.size - volume.offset) / volume.blockSize)), 0), complete: volumes.complete && objects.length > 0, readOnly: true, replayed: false, limitations: ['Object types and subtypes are reported as raw numeric values; no object-map, B-tree, checkpoint replay, or semantic filesystem reconstruction is performed', 'Bounded scanning may omit objects beyond maxObjectBlocks and does not establish a complete object inventory', 'Checksums are preserved as bytes but not validated in this preliminary adapter'] };
 }
+
+
+export async function inspectApfsObjectMaps(source, options = {}) {
+  const file = path.resolve(source);
+  const inventory = await inspectApfsObjectHeaders(file, options);
+  const stat = await fs.stat(file);
+  const maps = [];
+  for (const object of inventory.objects || []) {
+    if ((object.type & 0x7fffffff) !== 0x0b) continue;
+    const bytes = await sample(file, Math.min(object.blockSize, Math.max(0, stat.size - object.offset)), object.offset);
+    maps.push({ volumeOffset: object.volumeOffset, volumeBlock: object.volumeBlock, block: object.block, offset: object.offset, objectId: object.objectId, transactionXid: object.transactionXid, type: object.type, subtype: object.subtype, flags: u32(bytes, 32), snapshotCount: u32(bytes, 36), treeRootObjectId: u64(bytes, 40), snapshotTreeObjectId: u64(bytes, 48), headerSha256: crypto.createHash('sha256').update(bytes).digest('hex'), evidence: 'apfs-object-map-candidate' });
+  }
+  return { schema: 'recovery.apfs-object-maps/v1', generatedAt: new Date().toISOString(), source: file, status: maps.length ? 'detected' : inventory.status, maps, objectsScanned: inventory.objects?.length || 0, complete: inventory.complete, readOnly: true, rebuilt: false, limitations: ['Object-map fields are reported as bounded raw candidates and are not validated against the container or checkpoint rings', 'No object-map lookup, snapshot resolution, B-tree traversal, ownership reconstruction, or metadata replay is performed', 'Object type classification remains preliminary and format-specific semantic validation is pending'] };
+}
