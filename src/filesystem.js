@@ -252,3 +252,25 @@ export async function inspectAppleFilesystem(source, options = {}) {
   const recognized = candidates.length > 0;
   return { schema: 'recovery.apple-filesystem-inspection/v1', generatedAt: new Date().toISOString(), source: file, size: stat.size, scan: { maxBytes: maxScanBytes, offsets }, filesystem: firstHeader?.type || null, candidates, status: recognized ? (candidates.some(candidate => candidate.status === 'detected') ? 'detected' : 'partial') : 'unsupported', sourceModified: false, readOnly: true, complete: maxScanBytes === stat.size || recognized, limitations: ['APFS output is container-superblock evidence only; object maps, volumes, snapshots, encryption state, and deleted-record recovery are not implemented', 'HFS+ output is volume-header evidence only; catalog, extents, journal, resource forks, and deleted-entry recovery are not implemented', 'Header recognition does not validate the full container or volume checksum and does not establish mountability or recoverability'] };
 }
+
+
+export async function inspectApfsVolumeSuperblocks(source, options = {}) {
+  const file = path.resolve(source);
+  const container = await inspectAppleFilesystem(file, options);
+  const apfsContainers = container.candidates.filter(candidate => candidate.type === 'apfs-container' && candidate.blockSize);
+  if (!apfsContainers.length) return { schema: 'recovery.apfs-volume-inspection/v1', generatedAt: new Date().toISOString(), source: file, status: container.status === 'unsupported' ? 'unsupported' : 'partial', containers: [], volumes: [], complete: container.complete, readOnly: true, limitations: ['No APFS container superblock was detected; volume inspection was not attempted'] };
+  const maxBlocks = options.maxApfsBlocks || 4096;
+  const volumes = [];
+  for (const candidate of apfsContainers) {
+    const scanBytes = Math.min(candidate.blockCount * candidate.blockSize, options.maxScanBytes || 512 * 1024 * 1024);
+    const blocks = Math.min(maxBlocks, Math.ceil(scanBytes / candidate.blockSize));
+    for (let block = 0; block < blocks; block++) {
+      const offset = candidate.offset + block * candidate.blockSize;
+      const header = await sample(file, Math.min(candidate.blockSize, Math.max(0, (await fs.stat(file)).size - offset)), offset);
+      if (header.subarray(32, 36).toString('ascii') !== 'APSB') continue;
+      volumes.push({ type: 'apfs-volume', containerOffset: candidate.offset, block, offset, blockSize: candidate.blockSize, headerBytes: header.length, headerSha256: crypto.createHash('sha256').update(header).digest('hex'), magic: 'APSB', status: 'detected', evidence: 'apfs-volume-superblock' });
+    }
+  }
+  volumes.sort((a, b) => a.offset - b.offset);
+  return { schema: 'recovery.apfs-volume-inspection/v1', generatedAt: new Date().toISOString(), source: file, status: volumes.length ? 'detected' : 'partial', containers: apfsContainers, volumes, scannedBlocks: apfsContainers.reduce((sum, candidate) => sum + Math.min(maxBlocks, Math.ceil(Math.min(candidate.blockCount * candidate.blockSize, options.maxScanBytes || 512 * 1024 * 1024) / candidate.blockSize)), 0), complete: container.complete && volumes.length > 0, readOnly: true, limitations: ['APFS volume detection does not parse object maps, volume names, snapshots, encryption state, catalog records, or deleted files', 'Scanning is bounded by maxApfsBlocks and maxScanBytes; absence of APSB evidence does not prove volume absence'] };
+}
