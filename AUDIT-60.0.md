@@ -1,0 +1,51 @@
+# General Audit 2 — Early 60% Audit Block
+
+**Date:** 2026-11-02
+
+**Requested gate:** 60% / 168 audited rows
+
+**Actual audited ledger at execution:** 103/280 rows (36.8%)
+
+**Provisional implementation context:** 152/280 rows (54.3%)
+
+## Gate context
+
+This audit was run early at the operator's request before the authoritative audited ledger reached 168 rows. The audited count was not promoted by passing tests. Newly implemented filesystem work remains provisional until its required regression coverage and audit evidence are promoted through the normal ledger process.
+
+## Results
+
+| Severity | Result | Evidence and disposition |
+|---|---|---|
+| Critical | None found | Focused source-integrity checks preserved input hashes and metadata; no repair, mount, journal replay, key handling, or source write path was introduced by the inspected blocks. |
+| High | None found | Full test suite had 56 passing tests and 0 failures. Package smoke installation and doctor invocation passed. |
+| Moderate | Cataloged | The newly added FAT evidence pipeline and APFS preliminary adapters are covered by focused ephemeral synthetic checks, but their regression fixtures are not yet committed to `test/recovery.test.js`. Keep these rows provisional until committed fixture coverage and the scheduled gate audit are complete. |
+| Low | Cataloged | The native accelerator parity test was skipped because the recovery-native binary was not built in the test environment. The package smoke test confirmed the packaged native binary is present. |
+| Low | Cataloged | APFS checkpoint scanning performs bounded per-slot reads and is intentionally preliminary; future optimization and format-level validation should be handled in the next filesystem audit cycle. |
+
+## Verification evidence
+
+- `npm test`: **56 passed, 0 failed, 1 skipped**
+- `npm run pack:smoke`: passed; package installed in a clean temporary location, `doctor` succeeded, and case creation succeeded
+- `npm audit --omit=dev --audit-level=moderate`: **0 vulnerabilities**
+- `npm run progress:check`: **103/280, 36.8%, markerMatches=true**
+- `npm pack --dry-run`: passed; package contained 29 files
+- `node --check src/index.js`: passed
+- `node --check src/filesystem.js`: passed
+- `git diff --check`: passed
+- Focused synthetic APFS/FAT deep audit: passed all 8 checks
+  - APFS container detection
+  - APFS volume detection
+  - APFS volume-name extraction
+  - Keyless crypto-state reporting
+  - Checkpoint-ring slot parsing
+  - FAT pipeline verification
+  - Malformed-input classification
+  - Source immutability across all inspected images
+
+## Deep-audit status
+
+**PASS WITH CATALOGED FINDINGS — EARLY EXECUTION.** No critical or high-severity blocker was found. The audited ledger remains **103/280 (36.8%)**. The provisional implementation count remains **152/280 (54.3%)**. No rows are promoted solely because the early audit passed.
+
+## Required follow-up at the actual 60% gate
+
+Commit permanent regression fixtures for the FAT pipeline and APFS preliminary adapters, rerun the full malformed-input and mutation suite, build and test the native accelerator parity path, and reconcile the ledger against introducing commits before promoting any rows to audited status.
