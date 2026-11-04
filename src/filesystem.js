@@ -416,3 +416,19 @@ export async function inspectApfsSnapshots(source, options = {}) {
   metadataCandidates.sort((a, b) => a.offset - b.offset);
   return { schema: 'recovery.apfs-snapshots/v1', generatedAt: new Date().toISOString(), source: file, status: references.length || metadataCandidates.length ? 'detected' : maps.status, references, metadataCandidates, complete: maps.complete && inventory.complete, readOnly: true, reconstructed: false, replayed: false, limitations: ['Snapshot references and type candidates are raw evidence only; snapshot names, dates, root resolution, object-map lookup, and mounted-view reconstruction are not implemented', 'No snapshot is restored, replayed, mounted, or written', 'Absence of candidates does not prove snapshot absence because scanning is bounded and format validation is preliminary'] };
 }
+
+
+export async function inspectApfsBtreeNodes(source, options = {}) {
+  const file = path.resolve(source);
+  const inventory = await inspectApfsObjectHeaders(file, options);
+  const stat = await fs.stat(file);
+  const nodes = [];
+  for (const object of inventory.objects || []) {
+    const baseType = object.type & 0x7fffffff;
+    if (baseType !== 0x02 && baseType !== 0x03) continue;
+    const bytes = await sample(file, Math.min(object.blockSize, Math.max(0, stat.size - object.offset)), object.offset);
+    nodes.push({ volumeOffset: object.volumeOffset, volumeBlock: object.volumeBlock, block: object.block, offset: object.offset, objectId: object.objectId, transactionXid: object.transactionXid, objectType: object.type, subtype: object.subtype, nodeFlags: u16(bytes, 32), level: u16(bytes, 34), keyCount: u32(bytes, 36), tableSpaceOffset: u16(bytes, 40), tableSpaceLength: u16(bytes, 42), freeSpaceOffset: u16(bytes, 44), freeSpaceLength: u16(bytes, 46), keyFreeListOffset: u16(bytes, 48), keyFreeListLength: u16(bytes, 50), headerSha256: crypto.createHash('sha256').update(bytes.subarray(0, Math.min(64, bytes.length))).digest('hex'), evidence: 'apfs-btree-node-header' });
+  }
+  nodes.sort((a, b) => a.offset - b.offset);
+  return { schema: 'recovery.apfs-btree-nodes/v1', generatedAt: new Date().toISOString(), source: file, status: nodes.length ? 'detected' : inventory.status, nodes, objectsScanned: inventory.objects?.length || 0, complete: inventory.complete, readOnly: true, traversed: false, replayed: false, limitations: ['B-tree node fields are bounded raw header evidence; keys, values, records, sibling links, and tree ownership are not traversed', 'Node levels and counts are not validated against object maps or checkpoints', 'No filesystem namespace reconstruction or data recovery is performed'] };
+}
