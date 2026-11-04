@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 126/280 items (45.0%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). The 23 APFS adapter rows promoted at the 60% benchmark have permanent matrix coverage; remaining recent provisional work is not counted until it has equivalent ledger and regression evidence.
+**Audited completion: 168/280 items (60.0%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). The 42 FAT/ext adapter rows promoted at the formal 60% gate have permanent matrix coverage and read-only source-hash verification.
 
 ## Audit gates
 
@@ -152,6 +152,48 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | APFS raw key-type 10 candidates | Implemented in 0.5.0 | Numeric key-type 10 candidates are inventoried without unsupported semantic labels |
 | APFS raw key-type 11 candidates | Implemented in 0.5.0 | Numeric key-type 11 candidates are inventoried without unsupported semantic labels |
 | APFS raw key-type 12 candidates | Implemented in 0.5.0 | Numeric key-type 12 candidates are inventoried without unsupported semantic labels |
+| FAT fixed-root discovery | Implemented in 0.5.0 | Fixed-root directory records are discovered with bounded offsets and read-only evidence |
+| FAT12 allocation analysis | Implemented in 0.5.0 | Packed FAT12 entries are followed with loop, free, bad, and truncation states |
+| FAT mirror consistency | Implemented in 0.5.0 | Primary and mirror FAT copies are compared with mismatch evidence |
+| FAT long-name checksum inspection | Implemented in 0.5.0 | LFN checksum relationships are retained as bounded directory evidence |
+| FAT fixed-root deleted recovery | Implemented in 0.5.0 | Deleted fixed-root candidates are planned or extracted with bounded provenance |
+| FAT boot metadata inspection | Implemented in 0.5.0 | BPB and filesystem geometry fields are decoded without mounting |
+| FAT backup boot-sector inspection | Implemented in 0.5.0 | Backup boot candidates are compared without source modification |
+| FAT fixed-root timestamps | Implemented in 0.5.0 | DOS date/time fields are normalized with raw offsets and uncertainty markers |
+| FAT fixed-root attributes | Implemented in 0.5.0 | DOS attribute flags are classified with raw entry provenance |
+| FAT fixed-root names | Implemented in 0.5.0 | Short and reconstructed names are exposed without path writes |
+| FAT fixed-root entry classification | Implemented in 0.5.0 | Live, deleted, volume-label, directory, and special entries are separated |
+| FAT fixed-root slack inspection | Implemented in 0.5.0 | Unused root-directory ranges are reported with bounded hashes |
+| FAT fixed-root chain correlation | Implemented in 0.5.0 | Directory records are correlated to allocation chains without mutation |
+| FAT fixed-root cross-link detection | Implemented in 0.5.0 | Shared cluster ownership is reported as an integrity finding |
+| FAT fixed-root orphan detection | Implemented in 0.5.0 | Unreachable allocated clusters are identified with bounded evidence |
+| FAT orphan-chain reconstruction | Implemented in 0.5.0 | Lost cluster runs are grouped with loop and termination states |
+| FAT orphan-chain artifact recovery | Implemented in 0.5.0 | Orphan artifacts are planned or recovered with explicit source ranges |
+| FAT fixed-root record hashing | Implemented in 0.5.0 | Root records receive deterministic SHA-256 provenance |
+| FAT fixed-root name collisions | Implemented in 0.5.0 | Conflicting normalized names are reported without choosing a winner |
+| FAT fixed-root anomaly inspection | Implemented in 0.5.0 | Invalid, truncated, and contradictory entries are cataloged |
+| FAT fixed-root size validation | Implemented in 0.5.0 | File sizes are compared with chain capacity and truncation evidence |
+| FAT fixed-root integrity summary | Implemented in 0.5.0 | Fixed-root findings are summarized with explicit completeness status |
+| FAT fixed-root deleted-recovery planning | Implemented in 0.5.0 | Dry-run recovery plans preserve output safety and source immutability |
+| FAT subdirectory inspection | Implemented in 0.5.0 | Nested directory traversal is bounded with loop and depth evidence |
+| FAT subdirectory deleted candidates | Implemented in 0.5.0 | Deleted nested entries are correlated to directory and chain context |
+| FAT subdirectory recovery planning | Implemented in 0.5.0 | Nested deleted recovery can be planned without creating artifacts |
+| FAT subdirectory deleted recovery | Implemented in 0.5.0 | Eligible nested candidates are recovered with bounded evidence |
+| FAT subdirectory manifest recovery | Implemented in 0.5.0 | Recovered artifacts receive manifest-level provenance and hashes |
+| FAT recovery artifact indexing | Implemented in 0.5.0 | Manifests are converted into deterministic read-only catalogs |
+| FAT recovery pipeline | Implemented in 0.5.0 | Inspection, planning, recovery, hashing, and catalog stages are composed |
+| FAT input diagnostics | Implemented in 0.5.0 | MBR and partition-offset FAT candidates are diagnosed without mounting |
+| FAT pipeline diagnostics | Implemented in 0.5.0 | Pipeline dispatch reports unsupported and partition-required states |
+| FAT automatic partition-offset adaptation | Implemented in 0.5.0 | Temporary partition views preserve original source identity and hashes |
+| FAT partition-view benchmarking | Implemented in 0.5.0 | Read throughput and memory footprint are profiled without source writes |
+| FAT subdirectory cross-link detection | Implemented in 0.5.0 | Nested chain ownership conflicts are reported as integrity evidence |
+| FAT orphan and slack inspection | Implemented in 0.5.0 | Orphan chains and file/volume slack are separated with hashes |
+| FAT orphan-chain signature carving | Implemented in 0.5.0 | Bounded signatures are mapped to orphan clusters as uncertain hints |
+| FAT carving-directory reconciliation | Implemented in 0.5.0 | Carving matches are classified against live, deleted, slack, and orphan context |
+| FAT reconciliation validation harness | Implemented in 0.5.0 | Corrupted-image invariants check offsets, relationships, confidence, and mutation |
+| FAT integrated evidence pipeline | Implemented in 0.5.0 | Full FAT evidence stages return structured read-only status and provenance |
+| ext inode checksum evidence | Implemented in 0.5.0 | Candidate CRC32C inode checksums are computed without altering inode bytes |
+| ext superblock feature inspection | Implemented in 0.5.0 | Compatible, incompatible, read-only, and checksum feature flags are decoded |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule

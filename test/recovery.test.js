@@ -194,3 +194,62 @@ test('APFS preliminary adapters preserve bounded evidence across the full export
   const malformedResults = await Promise.all(adapters.map(adapter => adapter(malformed, { maxObjectBlocks: 4 })));
   assert.ok(malformedResults.every(result => result.status === 'unsupported'));
 });
+
+
+test('42 FAT and ext evidence adapters preserve bounded read-only contracts', async () => {
+  const root = await tempDir();
+  const image = path.join(root, 'fat12-audit.img');
+  const extImage = path.join(root, 'ext-audit.img');
+  const output = path.join(root, 'audit-output');
+  const block = 512;
+  const bytes = Buffer.alloc(1474560);
+  bytes.set([0xeb, 0x3c, 0x90], 0);
+  bytes.write('MSDOS5.0', 3, 'ascii');
+  bytes.writeUInt16LE(block, 11); bytes[13] = 1; bytes.writeUInt16LE(1, 14); bytes[16] = 1;
+  bytes.writeUInt16LE(224, 17); bytes.writeUInt16LE(2880, 19); bytes[21] = 0xf0; bytes.writeUInt16LE(9, 22);
+  bytes.write('FAT12', 54, 'ascii'); bytes[510] = 0x55; bytes[511] = 0xaa;
+  bytes[512 + 3] = 0xff; bytes[512 + 4] = 0xff; bytes[512 + 5] = 0xff;
+  const rootOffset = (1 + 9) * block; bytes.write('AUDIT   BIN', rootOffset, 'ascii'); bytes[rootOffset + 11] = 0x20; bytes.writeUInt16LE(2, rootOffset + 26); bytes.writeUInt32LE(4, rootOffset + 28);
+  Buffer.from('data').copy(bytes, 24 * block);
+  await fs.writeFile(image, bytes);
+  const extBytes = Buffer.alloc(16 * 1024);
+  extBytes.writeUInt32LE(16, 1024); extBytes.writeUInt32LE(32, 1028); extBytes.writeUInt32LE(16, 1064);
+  extBytes.writeUInt16LE(0xef53, 1080); extBytes.writeUInt16LE(128, 1112); extBytes.writeUInt32LE(0, 1116);
+  await fs.writeFile(extImage, extBytes);
+  const manifest = path.join(root, 'manifest.json'); const catalog = path.join(root, 'catalog.json');
+  await fs.writeFile(manifest, JSON.stringify({ schema: 'recovery.fat-subdirectory-manifest/v1', source: image, provenance: { hashAlgorithm: 'sha256' }, artifacts: [] }));
+  const names = [
+    'discoverFatFixedRootDirectory', 'analyzeFat12Allocation', 'inspectFatMirrorConsistency', 'inspectFatFixedRootLongNameChecksums',
+    'recoverFatFixedRootDeletedEntries', 'inspectFatBootMetadata', 'inspectFatBackupBootSector', 'inspectFatFixedRootTimestamps',
+    'inspectFatFixedRootAttributes', 'inspectFatFixedRootNames', 'classifyFatFixedRootEntries', 'inspectFatFixedRootSlack',
+    'correlateFatFixedRootChains', 'detectFatFixedRootCrossLinks', 'detectFatFixedRootOrphanClusters', 'reconstructFatOrphanChains',
+    'recoverFatOrphanChainArtifacts', 'hashFatFixedRootRecords', 'detectFatFixedRootNameCollisions', 'inspectFatFixedRootAnomalies',
+    'validateFatFixedRootSizes', 'summarizeFatFixedRootIntegrity', 'planFatFixedRootDeletedRecovery', 'inspectFatSubdirectories',
+    'inspectFatSubdirectoryDeletedCandidates', 'planFatSubdirectoryDeletedRecovery', 'recoverFatSubdirectoryDeletedEntries',
+    'recoverFatSubdirectoryDeletedEntriesWithManifest', 'indexFatRecoveryArtifacts', 'runFatRecoveryPipeline', 'diagnoseFatInput',
+    'runFatRecoveryPipelineWithDiagnostics', 'runFatRecoveryPipelineWithAutoOffset', 'benchmarkFatPartitionView',
+    'inspectFatSubdirectoryCrossLinks', 'inspectFatOrphansAndSlack', 'inspectFatOrphansWithCarving', 'reconcileFatCarvingWithDirectories',
+    'validateFatReconciliationImages', 'runFatRecoveryEvidencePipeline', 'inspectExtInodeChecksumEvidence', 'inspectExtSuperblockFeatures'
+  ];
+  const filesystem = await import('../src/filesystem.js');
+  const before = crypto.createHash('sha256').update(await fs.readFile(image)).digest('hex');
+  const results = [];
+  for (const name of names) {
+    const fn = filesystem[name];
+    assert.equal(typeof fn, 'function', `${name} export missing`);
+    let result;
+    if (name === 'indexFatRecoveryArtifacts') result = await fn(manifest, catalog, {});
+    else if (name === 'validateFatReconciliationImages') result = await fn([image], {});
+    else if (name === 'inspectExtInodeChecksumEvidence') result = await fn(extImage, [], {});
+    else if (name === 'inspectExtSuperblockFeatures') result = await fn(extImage, {});
+    else if (name.includes('recover') || name.includes('plan') || name.includes('Pipeline')) result = await fn(image, output, { dryRun: true });
+    else result = await fn(image, {});
+    assert.equal(typeof result.schema, 'string', `${name} schema missing`);
+    results.push({ name, schema: result.schema });
+  }
+  const after = crypto.createHash('sha256').update(await fs.readFile(image)).digest('hex');
+  assert.equal(results.length, 42);
+  assert.equal(before, after);
+  const outputEntries = await fs.readdir(output).catch(() => []);
+  assert.ok(outputEntries.every(entry => !entry.endsWith('.bin')));
+});

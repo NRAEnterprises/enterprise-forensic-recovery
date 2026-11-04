@@ -90,3 +90,11 @@ Verification results:
 The prior **170 provisional** headline included 44 recent implementation claims that were not represented as rows in the authoritative 280-item implementation ledger. Those claims are not promoted by this audit. The 23 APFS rows with committed code, permanent regression coverage, documentation, and progress-ledger evidence are promoted from provisional to audited. The authoritative audited count is therefore **126/280 (45.0%)**. The reconciled tracked provisional scope is also **126/126**; the remaining 44 unledgered claims remain explicitly deferred rather than counted.
 
 No critical or high-severity finding was introduced. The APFS adapters remain preliminary evidence collectors: they do not decrypt, mount, replay, traverse complete trees, decode filesystem names or values, reconstruct ownership, or mutate sources. The formal 60% ledger gate remains **168 audited rows** and has not been falsely declared passed.
+
+## Formal 60% gate — 2026-11-04
+
+The formal gate threshold of 168 audited rows was reached by promoting 42 existing FAT/ext adapter targets. Promotion required permanent regression coverage, structured schema assertions, read-only source-hash verification, dry-run output safety, and full-suite verification. The new matrix exercised 40 FAT adapters plus ext inode checksum and ext superblock feature adapters against synthetic FAT12 and ext-family fixtures.
+
+Gate evidence: `npm test` completed with **59 passed, 0 failed, 0 skipped**; the dedicated 42-target matrix passed **42/42**; `npm run pack:smoke` passed; `npm audit --omit=dev --audit-level=moderate` reported **0 vulnerabilities**; syntax checks for the package, filesystem module, and test module passed; and `git diff --check` passed. The deterministic progress checker reports **168/280, 60.0%, markerMatches=true**.
+
+The gate passes for the declared moderate/high/critical audit scope. The implementation remains read-only with explicit preliminary limitations: FAT signature carving is an uncertain hint rather than proof of file boundaries, APFS remains preliminary evidence collection, and no source mutation, filesystem mounting, journal replay, decryption, or unsupported semantic reconstruction is claimed.
