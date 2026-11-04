@@ -499,3 +499,15 @@ export async function inspectApfsExtentCandidates(source, options = {}) {
 export async function inspectApfsXattrCandidates(source, options = {}) {
   return inspectApfsKeyTypeCandidates(source, options, [2], 'recovery.apfs-xattr-candidates/v1', 'xattr');
 }
+
+export async function inspectApfsSiblingCandidates(source, options = {}) {
+  return inspectApfsKeyTypeCandidates(source, options, [3], 'recovery.apfs-sibling-candidates/v1', 'sibling');
+}
+
+export async function inspectApfsFileExtentCandidates(source, options = {}) {
+  return inspectApfsKeyTypeCandidates(source, options, [5], 'recovery.apfs-file-extent-candidates/v1', 'file-extent');
+}
+
+export async function inspectApfsDirectoryStatsCandidates(source, options = {}) {
+  return inspectApfsKeyTypeCandidates(source, options, [6], 'recovery.apfs-directory-stats-candidates/v1', 'directory-stats');
+}
