@@ -432,3 +432,27 @@ export async function inspectApfsBtreeNodes(source, options = {}) {
   nodes.sort((a, b) => a.offset - b.offset);
   return { schema: 'recovery.apfs-btree-nodes/v1', generatedAt: new Date().toISOString(), source: file, status: nodes.length ? 'detected' : inventory.status, nodes, objectsScanned: inventory.objects?.length || 0, complete: inventory.complete, readOnly: true, traversed: false, replayed: false, limitations: ['B-tree node fields are bounded raw header evidence; keys, values, records, sibling links, and tree ownership are not traversed', 'Node levels and counts are not validated against object maps or checkpoints', 'No filesystem namespace reconstruction or data recovery is performed'] };
 }
+
+export async function inspectApfsBtreeRecordEvidence(source, options = {}) {
+  const file = path.resolve(source);
+  const nodes = await inspectApfsBtreeNodes(file, options);
+  const stat = await fs.stat(file);
+  const maxSlots = options.maxRecordSlots || 128;
+  const maxWindowBytes = options.maxRecordWindowBytes || 4096;
+  const records = [];
+  for (const node of nodes.nodes || []) {
+    if (!node.keyCount || !node.tableSpaceLength) continue;
+    const count = Math.min(maxSlots, node.keyCount);
+    const stride = Math.max(1, Math.floor(node.tableSpaceLength / count));
+    for (let slot = 0; slot < count; slot++) {
+      const relative = Math.min(node.tableSpaceLength, slot * stride);
+      const remaining = Math.max(0, node.tableSpaceLength - relative);
+      const length = Math.min(maxWindowBytes, stride, remaining);
+      if (!length) continue;
+      const offset = node.offset + node.tableSpaceOffset + relative;
+      const bytes = await sample(file, Math.min(length, Math.max(0, stat.size - offset)), offset);
+      records.push({ nodeOffset: node.offset, nodeObjectId: node.objectId, nodeLevel: node.level, slot, estimatedStride: stride, offset, requestedBytes: length, headerBytes: bytes.length, nonZeroBytes: bytes.reduce((sum, byte) => sum + (byte ? 1 : 0), 0), sha256: crypto.createHash('sha256').update(bytes).digest('hex'), evidence: 'apfs-btree-record-window-heuristic' });
+    }
+  }
+  return { schema: 'recovery.apfs-btree-record-evidence/v1', generatedAt: new Date().toISOString(), source: file, status: records.length ? 'detected' : nodes.status, records, nodesScanned: nodes.nodes?.length || 0, complete: nodes.complete, readOnly: true, parsedKeys: false, parsedValues: false, traversed: false, limitations: ['Record windows use bounded uniform stride estimates from raw key counts and table-space length; they are not format-validated key/value boundaries', 'No keys, values, records, namespace names, or file data are decoded', 'Window scanning is capped and does not establish complete B-tree coverage'] };
+}
