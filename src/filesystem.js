@@ -511,3 +511,15 @@ export async function inspectApfsFileExtentCandidates(source, options = {}) {
 export async function inspectApfsDirectoryStatsCandidates(source, options = {}) {
   return inspectApfsKeyTypeCandidates(source, options, [6], 'recovery.apfs-directory-stats-candidates/v1', 'directory-stats');
 }
+
+export async function inspectApfsSnapshotMetadataCandidates(source, options = {}) {
+  return inspectApfsKeyTypeCandidates(source, options, [7], 'recovery.apfs-snapshot-metadata-candidates/v1', 'snapshot-metadata');
+}
+
+export async function inspectApfsSnapshotNameCandidates(source, options = {}) {
+  return inspectApfsKeyTypeCandidates(source, options, [8], 'recovery.apfs-snapshot-name-candidates/v1', 'snapshot-name');
+}
+
+export async function inspectApfsFileInfoCandidates(source, options = {}) {
+  return inspectApfsKeyTypeCandidates(source, options, [9], 'recovery.apfs-file-info-candidates/v1', 'file-info');
+}
