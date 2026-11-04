@@ -319,3 +319,44 @@ test('modern filesystem evidence adapters preserve bounded signatures and immuta
   const malformedResults = await Promise.all(matrix.map(([name]) => filesystem[name](malformed, { maxScanBytes: 4096 })));
   assert.ok(malformedResults.every(result => result.status === 'unsupported' && result.readOnly === true));
 });
+
+test('post-70 evidence adapters preserve bounded read-only contracts', async () => {
+  const root = await tempDir();
+  const image = path.join(root, 'evidence-rich.bin');
+  const malformed = path.join(root, 'evidence-empty.bin');
+  const bytes = Buffer.alloc(4097, 0x20);
+  bytes.write('{"metadata":true}', 0, 'ascii');
+  bytes.write('ACL XATTR ADS HARDLINK SPARSE CASEFOLD FILESLACK FRAG OVERLAP', 64, 'ascii');
+  bytes.writeUInt32LE(0x46524147, 384);
+  bytes.write('2026-11-04 package.json Cargo.toml nbformat execution_count metadata outputs', 128, 'ascii');
+  bytes.write('%PDF- PK\x03\x04 SQLite format 3\x00 RIFF OggS THUMBNAIL ATTACHMENT MACRO CACHE', 256, 'binary');
+  bytes.write('commit tree blob ref: refs/ npm run build cargo build Makefile Dockerfile', 512, 'ascii');
+  bytes.write('token=REDACTED password=REDACTED', 768, 'ascii');
+  await fs.writeFile(image, bytes);
+  await fs.writeFile(malformed, Buffer.alloc(4097));
+  const filesystem = await import('../src/filesystem.js');
+  const names = [
+    'inspectMetadataPreservationHints', 'inspectOwnershipAclHints', 'inspectExtendedAttributeHints',
+    'inspectAlternateStreamHints', 'inspectHardlinkSparseCaseHints', 'scanUnallocatedEvidenceRanges',
+    'scanVolumeSlackEvidence', 'scanFileSlackEvidence', 'scoreFragmentationCandidates',
+    'resolveCarvingOverlaps', 'inspectTextEncodingHints', 'inspectEntropyHints',
+    'inspectDocumentStructureHints', 'inspectMediaStructureHints', 'inspectEmbeddedObjectHints',
+    'inspectCacheAndThumbnailHints', 'inspectDatabaseFormatHints', 'inspectStructuredDataHints',
+    'inspectGitObjectHints', 'inspectProjectDependencyHints', 'inspectSecretPatternMetadata',
+    'inspectTimelineTimestampHints', 'inspectNestedContainerHints', 'inspectDuplicateContentHints',
+    'inspectManualCarvingControls', 'inspectProjectBuildHints', 'inspectNotebookMetadataHints',
+    'validateEvidenceRanges'
+  ];
+  const before = crypto.createHash('sha256').update(await fs.readFile(image)).digest('hex');
+  const results = await Promise.all(names.map(name => name === 'validateEvidenceRanges'
+    ? filesystem[name](image, [{ offset: 0, length: 64 }, { offset: 256, length: 32 }], { maxBytes: 4097 })
+    : filesystem[name](image, { blockSize: 512, maxBytes: 4097 })));
+  assert.equal(results.length, 28);
+  assert.ok(results.every(result => (result.status === 'detected' || result.status === 'validated') && result.readOnly === true && result.sourceModified === false));
+  assert.ok(results.every(result => (result.records?.length || result.ranges?.length) > 0));
+  assert.equal(before, crypto.createHash('sha256').update(await fs.readFile(image)).digest('hex'));
+  const malformedResults = await Promise.all(names.map(name => name === 'validateEvidenceRanges'
+    ? filesystem[name](malformed, [{ offset: 0, length: 16 }], { maxBytes: 4097 })
+    : filesystem[name](malformed, { blockSize: 512, maxBytes: 4097 })));
+  assert.ok(malformedResults.every(result => result.readOnly === true && result.sourceModified === false));
+});

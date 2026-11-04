@@ -84,7 +84,8 @@ The authoritative count is the number of rows marked `Implemented` in the status
 | `AUDIT-60-FAT-EXT` | 42 | FAT fixed-root, orphan, slack, carving, reconciliation, pipeline, and ext checksum/feature adapters with permanent 42-target matrix coverage |
 | `POST-60-HFS` | 12 | HFS+ volume, fork, journal, allocation, candidate, and validation adapters with permanent 12-target matrix coverage |
 | `MILESTONE-70-MODERN-FS` | 16 | XFS, Btrfs, ZFS, ReFS, and cross-format signature/geometry adapters with permanent 16-target matrix coverage |
-| **Total** | **196** | **70.0% of 280** |
+| `MILESTONE-80-EVIDENCE` | 28 | Metadata, slack, unallocated, fragmentation, carving, content, project, and range-validation adapters with permanent 28-target matrix coverage |
+| **Total** | **224** | **80.0% of 280** |
 
 ## Stage gates
 

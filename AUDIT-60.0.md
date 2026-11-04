@@ -110,3 +110,11 @@ The permanent HFS+ matrix passed **12/12** adapters against valid and malformed 
 A 16-target modern-filesystem evidence slice was added beyond the 64.3% milestone. The adapters cover bounded XFS, Btrfs, ZFS, and ReFS signatures, geometry and metadata hints, validation, and normalized cross-format evidence. They are read-only and explicitly preliminary; no filesystem mounting, pool assembly, journal replay, allocation mutation, or deleted-record recovery is claimed.
 
 The permanent modern-filesystem matrix passed **16/16** adapters against valid and malformed synthetic images with unchanged source hashes. The full suite passed **61 tests with 0 failures and 0 skips**. Package smoke passed, dependency audit reported **0 vulnerabilities**, syntax and diff checks passed, and the audited ledger advanced to **196/280 (70.0%)**.
+
+## 80% milestone checkpoint — 2026-11-04
+
+A 28-target evidence-normalization batch was completed beyond the 70% milestone. It covers metadata preservation, ownership/ACL and extended-attribute hints, alternate streams, hard-link/sparse/case markers, unallocated and slack ranges, fragmentation and carving-overlap review, text and entropy hints, document/media/database structure, embedded objects, project/Git/notebook evidence, nested containers, duplicate comparison keys, manual carving controls, and source-range validation.
+
+The permanent post-70 matrix passed **28/28** against a marker-rich fixture and a malformed fixture, including unchanged source SHA-256 and read-only result assertions. The full suite passed **62 tests with 0 failures and 0 skips**. Package smoke passed, dependency audit reported **0 vulnerabilities**, syntax and diff checks passed, and the audited ledger advanced to **224/280 (80.0%)**.
+
+These adapters remain evidence collectors: entropy is not encryption proof, markers are not semantic ownership, ranges are not recovered files, and no source mutation, extraction, secret disclosure, or probabilistic reconstruction is performed.

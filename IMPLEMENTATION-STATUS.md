@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 196/280 items (70.0%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). The 16 modern-filesystem evidence rows promoted at the 70% milestone have permanent matrix coverage and read-only source-hash verification.
+**Audited completion: 224/280 items (80.0%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). The 28 post-70 evidence rows promoted at the 80% milestone have permanent matrix coverage and read-only source-hash verification.
 
 ## Audit gates
 
@@ -222,6 +222,34 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Cross-format filesystem signatures | Implemented in 0.5.0 | XFS, Btrfs, ZFS, and ReFS signatures are normalized into one evidence schema |
 | Cross-format filesystem geometry | Implemented in 0.5.0 | Bounded geometry hints are exposed with source offsets and hashes |
 | Cross-format signature validation | Implemented in 0.5.0 | Multi-format signature evidence is validated without mounting |
+| Metadata preservation hints | Implemented in 0.5.0 | Bounded metadata-field evidence is normalized with source hashes |
+| Ownership and ACL hints | Implemented in 0.5.0 | ACL markers are reported without claiming decoded permissions |
+| Extended-attribute hints | Implemented in 0.5.0 | XATTR evidence is retained with offsets and hashes |
+| Alternate-stream hints | Implemented in 0.5.0 | ADS evidence is reported without stream extraction claims |
+| Hard-link, sparse, and case hints | Implemented in 0.5.0 | Filesystem metadata markers are normalized read-only |
+| Unallocated evidence ranges | Implemented in 0.5.0 | Nonzero bounded blocks are reported as allocation candidates |
+| Volume slack evidence | Implemented in 0.5.0 | Tail slack is hashed separately from ordinary content |
+| File slack evidence | Implemented in 0.5.0 | Explicit file-slack markers are preserved as candidates |
+| Fragmentation candidates | Implemented in 0.5.0 | Fragment markers receive preliminary evidence scores |
+| Carving overlap review | Implemented in 0.5.0 | Competing ranges are retained for review rather than discarded |
+| Text encoding hints | Implemented in 0.5.0 | BOM and ASCII-compatible evidence is reported with confidence |
+| Entropy hints | Implemented in 0.5.0 | Shannon entropy is reported as a compression/encryption candidate only |
+| Document structure hints | Implemented in 0.5.0 | PDF, package, and SQLite signatures are normalized |
+| Media structure hints | Implemented in 0.5.0 | JPEG, PNG, RIFF, and Ogg signatures are normalized |
+| Embedded-object hints | Implemented in 0.5.0 | Thumbnail, attachment, macro, and preview markers are retained |
+| Cache and thumbnail hints | Implemented in 0.5.0 | Cache/preview markers are reported read-only |
+| Database format hints | Implemented in 0.5.0 | SQLite, LMDB, LevelDB, and RDB markers are reported |
+| Structured-data hints | Implemented in 0.5.0 | JSON and XML prefix candidates are identified |
+| Git object hints | Implemented in 0.5.0 | Commit, tree, blob, and ref markers are preserved |
+| Project dependency hints | Implemented in 0.5.0 | Common dependency manifest markers are cataloged |
+| Secret-pattern metadata | Implemented in 0.5.0 | Pattern locations are reported with content redaction |
+| Timeline timestamp hints | Implemented in 0.5.0 | Date-pattern candidates are normalized for later timelines |
+| Nested-container hints | Implemented in 0.5.0 | Archive markers are exposed without recursive extraction |
+| Duplicate-content hints | Implemented in 0.5.0 | Exact window hashes provide comparison keys |
+| Manual carving controls | Implemented in 0.5.0 | Alignment, size, and exclusion policies are preserved |
+| Project build hints | Implemented in 0.5.0 | Build-system markers are cataloged without execution |
+| Notebook metadata hints | Implemented in 0.5.0 | Notebook metadata markers are preserved as evidence |
+| Evidence-range validation | Implemented in 0.5.0 | Requested ranges are bounds-checked and hashed |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
