@@ -535,3 +535,89 @@ export async function inspectApfsKeyType11Candidates(source, options = {}) {
 export async function inspectApfsKeyType12Candidates(source, options = {}) {
   return inspectApfsKeyTypeCandidates(source, options, [12], 'recovery.apfs-key-type-12-candidates/v1', 'key-type-12');
 }
+
+function hfsForkDescriptor(raw, offset) {
+  if (offset < 0 || offset + 80 > raw.length) return null;
+  const logicalSize = raw.readBigUInt64BE(offset);
+  const clumpSize = raw.readUInt32BE(offset + 8);
+  const totalBlocks = raw.readUInt32BE(offset + 12);
+  const extents = [];
+  for (let index = 0; index < 8; index++) {
+    const at = offset + 16 + index * 8;
+    const startBlock = raw.readUInt32BE(at);
+    const blockCount = raw.readUInt32BE(at + 4);
+    if (startBlock || blockCount) extents.push({ index, startBlock, blockCount });
+  }
+  return { logicalSize: logicalSize.toString(), clumpSize, totalBlocks, extents };
+}
+
+async function readHfsHeaders(source, options = {}) {
+  const file = path.resolve(source);
+  const stat = await fs.stat(file);
+  const maxScanBytes = Math.min(stat.size, options.maxScanBytes || 64 * 1024 * 1024);
+  const offsets = [...new Set([1024, Math.max(0, stat.size - 512), 0].filter(offset => offset + 512 <= maxScanBytes || offset + 512 <= stat.size))];
+  const headers = [];
+  for (const offset of offsets.slice(0, options.maxHeaders || 8)) {
+    const raw = await sample(file, Math.min(512, stat.size - offset), offset);
+    const signature = raw.length >= 2 ? raw.toString('ascii', 0, 2) : '';
+    if (signature !== 'H+' && signature !== 'HX') continue;
+    headers.push({ offset, signature, version: raw.length >= 4 ? raw.readUInt16BE(2) : null, attributes: raw.length >= 8 ? raw.readUInt32BE(4) : null, blockSize: raw.length >= 44 ? raw.readUInt32BE(40) : null, totalBlocks: raw.length >= 48 ? raw.readUInt32BE(44) : null, freeBlocks: raw.length >= 52 ? raw.readUInt32BE(48) : null, rawSha256: crypto.createHash('sha256').update(raw).digest('hex'), rawBytes: raw.length, raw });
+  }
+  return { file, stat, maxScanBytes, headers };
+}
+
+export async function inspectHfsPlusVolumeHeaders(source, options = {}) {
+  const result = await readHfsHeaders(source, options);
+  return { schema: 'recovery.hfs-volume-headers/v1', generatedAt: new Date().toISOString(), source: result.file, headers: result.headers.map(({ raw, ...header }) => header), status: result.headers.length ? 'detected' : 'unsupported', complete: true, readOnly: true, sourceModified: false, limitations: ['Header evidence does not establish mountability, checksum validity, or recoverability'] };
+}
+
+async function inspectHfsForkField(source, options, field, schema, evidence) {
+  const result = await readHfsHeaders(source, options);
+  const records = result.headers.map(header => ({ offset: header.offset, signature: header.signature, fork: hfsForkDescriptor(header.raw, field), evidence, rawSha256: header.rawSha256 })).filter(item => item.fork);
+  return { schema, generatedAt: new Date().toISOString(), source: result.file, records, status: records.length ? 'detected' : 'unsupported', complete: true, readOnly: true, sourceModified: false, limitations: ['Fork descriptors are reported as bounded metadata; extents are not assembled or written'] };
+}
+
+export async function inspectHfsPlusCatalogFile(source, options = {}) { return inspectHfsForkField(source, options, 0x100, 'recovery.hfs-catalog-file/v1', 'hfs-catalog-fork-descriptor'); }
+export async function inspectHfsPlusExtentsFile(source, options = {}) { return inspectHfsForkField(source, options, 0x80, 'recovery.hfs-extents-file/v1', 'hfs-extents-fork-descriptor'); }
+export async function inspectHfsPlusAttributesFile(source, options = {}) { return inspectHfsForkField(source, options, 0x180, 'recovery.hfs-attributes-file/v1', 'hfs-attributes-fork-descriptor'); }
+export async function inspectHfsPlusStartupFile(source, options = {}) { return inspectHfsForkField(source, options, 0x200, 'recovery.hfs-startup-file/v1', 'hfs-startup-fork-descriptor'); }
+
+export async function inspectHfsPlusJournalInfo(source, options = {}) {
+  const result = await readHfsHeaders(source, options);
+  const records = result.headers.map(header => ({ offset: header.offset, journalInfoBlock: header.raw.length >= 20 ? header.raw.readUInt32BE(16) : null, attributes: header.attributes, evidence: 'hfs-journal-info-block', rawSha256: header.rawSha256 }));
+  return { schema: 'recovery.hfs-journal-info/v1', generatedAt: new Date().toISOString(), source: result.file, records, status: records.length ? 'detected' : 'unsupported', complete: true, readOnly: true, sourceModified: false, limitations: ['Journal replay and prior-state reconstruction are not performed'] };
+}
+
+export async function inspectHfsPlusAllocationBitmap(source, options = {}) {
+  const result = await readHfsHeaders(source, options);
+  const records = result.headers.map(header => ({ offset: header.offset, blockSize: header.blockSize, totalBlocks: header.totalBlocks, freeBlocks: header.freeBlocks, allocatedEstimate: header.totalBlocks !== null && header.freeBlocks !== null ? Math.max(0, header.totalBlocks - header.freeBlocks) : null, evidence: 'hfs-allocation-summary', rawSha256: header.rawSha256 }));
+  return { schema: 'recovery.hfs-allocation-bitmap/v1', generatedAt: new Date().toISOString(), source: result.file, records, status: records.length ? 'detected' : 'unsupported', complete: true, readOnly: true, sourceModified: false, limitations: ['This is volume-summary evidence; allocation bitmap bits are not decoded in this preliminary adapter'] };
+}
+
+export async function inspectHfsPlusVolumeMetadata(source, options = {}) {
+  const result = await readHfsHeaders(source, options);
+  const records = result.headers.map(header => ({ offset: header.offset, signature: header.signature, version: header.version, attributes: header.attributes, blockSize: header.blockSize, totalBlocks: header.totalBlocks, freeBlocks: header.freeBlocks, rawSha256: header.rawSha256, evidence: 'hfs-volume-metadata' }));
+  return { schema: 'recovery.hfs-volume-metadata/v1', generatedAt: new Date().toISOString(), source: result.file, records, status: records.length ? 'detected' : 'unsupported', complete: true, readOnly: true, sourceModified: false };
+}
+
+async function inspectHfsCandidateBytes(source, options, schema, evidence, predicate) {
+  const result = await readHfsHeaders(source, options);
+  const candidates = [];
+  for (const header of result.headers) {
+    for (const [name, value] of [['catalog', 0x100], ['extents', 0x80], ['attributes', 0x180], ['startup', 0x200]]) {
+      const fork = hfsForkDescriptor(header.raw, value);
+      if (fork && predicate(fork)) candidates.push({ headerOffset: header.offset, name, fork, evidence, rawSha256: header.rawSha256 });
+    }
+  }
+  return { schema, generatedAt: new Date().toISOString(), source: result.file, candidates, status: candidates.length ? 'detected' : 'unsupported', complete: true, readOnly: true, sourceModified: false, limitations: ['Candidates are structural hints and do not establish deleted records or original names'] };
+}
+
+export async function inspectHfsPlusCatalogCandidates(source, options = {}) { return inspectHfsCandidateBytes(source, options, 'recovery.hfs-catalog-candidates/v1', 'hfs-catalog-candidate', fork => fork.totalBlocks > 0 || fork.logicalSize !== '0'); }
+export async function inspectHfsPlusDeletedEntryCandidates(source, options = {}) { return inspectHfsCandidateBytes(source, options, 'recovery.hfs-deleted-entry-candidates/v1', 'hfs-deleted-entry-candidate', fork => fork.totalBlocks > 0 && fork.extents.length > 0); }
+export async function inspectHfsPlusResourceForkCandidates(source, options = {}) { return inspectHfsCandidateBytes(source, options, 'recovery.hfs-resource-fork-candidates/v1', 'hfs-resource-fork-candidate', fork => fork.logicalSize !== '0' || fork.extents.length > 0); }
+
+export async function validateHfsPlusEvidence(source, options = {}) {
+  const result = await readHfsHeaders(source, options);
+  const cases = result.headers.map(header => ({ offset: header.offset, validSignature: header.signature === 'H+' || header.signature === 'HX', validGeometry: Number.isInteger(header.blockSize) && header.blockSize > 0 && Number.isInteger(header.totalBlocks) && header.totalBlocks > 0, sourceModified: false, rawSha256: header.rawSha256 }));
+  return { schema: 'recovery.hfs-evidence-validation/v1', generatedAt: new Date().toISOString(), source: result.file, cases, status: cases.length && cases.every(item => item.validSignature && item.validGeometry) ? 'validated' : cases.length ? 'partial' : 'unsupported', complete: true, readOnly: true, sourceModified: false, limitations: ['Validation covers bounded header invariants only; catalog and journal semantics require separate format-level validation'] };
+}

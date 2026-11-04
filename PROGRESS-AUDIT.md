@@ -82,7 +82,8 @@ The authoritative count is the number of rows marked `Implemented` in the status
 | `NEXT-50` | 1 | ext high UID/GID decoding |
 | `AUDIT-60-APFS` | 23 | APFS header, volume, crypto, checkpoint, object-map, snapshot, B-tree, and raw key-class adapters with permanent matrix coverage |
 | `AUDIT-60-FAT-EXT` | 42 | FAT fixed-root, orphan, slack, carving, reconciliation, pipeline, and ext checksum/feature adapters with permanent 42-target matrix coverage |
-| **Total** | **168** | **60.0% of 280** |
+| `POST-60-HFS` | 12 | HFS+ volume, fork, journal, allocation, candidate, and validation adapters with permanent 12-target matrix coverage |
+| **Total** | **180** | **64.3% of 280** |
 
 ## Stage gates
 

@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 168/280 items (60.0%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). The 42 FAT/ext adapter rows promoted at the formal 60% gate have permanent matrix coverage and read-only source-hash verification.
+**Audited completion: 180/280 items (64.3%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). The 12 HFS+ evidence rows promoted after the formal 60% gate have permanent matrix coverage and read-only source-hash verification.
 
 ## Audit gates
 
@@ -194,6 +194,18 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | FAT integrated evidence pipeline | Implemented in 0.5.0 | Full FAT evidence stages return structured read-only status and provenance |
 | ext inode checksum evidence | Implemented in 0.5.0 | Candidate CRC32C inode checksums are computed without altering inode bytes |
 | ext superblock feature inspection | Implemented in 0.5.0 | Compatible, incompatible, read-only, and checksum feature flags are decoded |
+| HFS+ volume-header inventory | Implemented in 0.5.0 | H+ and HX headers are detected with bounded offsets and raw SHA-256 evidence |
+| HFS+ volume metadata | Implemented in 0.5.0 | Version, attributes, geometry, and allocation summary fields are preserved |
+| HFS+ catalog fork descriptor | Implemented in 0.5.0 | Catalog-file fork metadata is decoded without assembling extents |
+| HFS+ extents fork descriptor | Implemented in 0.5.0 | Extents-overflow fork metadata is decoded as bounded evidence |
+| HFS+ attributes fork descriptor | Implemented in 0.5.0 | Attributes-file fork metadata is decoded without semantic replay |
+| HFS+ startup fork descriptor | Implemented in 0.5.0 | Startup-file fork evidence is reported with explicit unsupported bounds |
+| HFS+ journal information | Implemented in 0.5.0 | Journal-info block and attribute evidence is reported without replay |
+| HFS+ allocation summary | Implemented in 0.5.0 | Total/free/estimated allocated block evidence is reported read-only |
+| HFS+ catalog candidates | Implemented in 0.5.0 | Structural catalog fork candidates are identified without names or ownership claims |
+| HFS+ deleted-entry candidates | Implemented in 0.5.0 | Candidate fork structures are exposed without asserting deletion authenticity |
+| HFS+ resource-fork candidates | Implemented in 0.5.0 | Resource-fork structural candidates are retained with raw provenance |
+| HFS+ evidence validation | Implemented in 0.5.0 | Header signature and geometry invariants are checked without mounting |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule

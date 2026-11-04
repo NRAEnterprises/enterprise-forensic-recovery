@@ -98,3 +98,9 @@ The formal gate threshold of 168 audited rows was reached by promoting 42 existi
 Gate evidence: `npm test` completed with **59 passed, 0 failed, 0 skipped**; the dedicated 42-target matrix passed **42/42**; `npm run pack:smoke` passed; `npm audit --omit=dev --audit-level=moderate` reported **0 vulnerabilities**; syntax checks for the package, filesystem module, and test module passed; and `git diff --check` passed. The deterministic progress checker reports **168/280, 60.0%, markerMatches=true**.
 
 The gate passes for the declared moderate/high/critical audit scope. The implementation remains read-only with explicit preliminary limitations: FAT signature carving is an uncertain hint rather than proof of file boundaries, APFS remains preliminary evidence collection, and no source mutation, filesystem mounting, journal replay, decryption, or unsupported semantic reconstruction is claimed.
+
+## Post-60% phase checkpoint — 2026-11-04
+
+A bounded HFS+ evidence slice was added after the formal 60% gate. Twelve adapters now report volume headers, volume metadata, catalog/extents/attributes/startup fork descriptors, journal information, allocation summaries, catalog/deleted/resource-fork candidates, and header validation. The implementation is explicitly preliminary: it does not assemble extents, replay journals, recover names, mount volumes, or assert deletion authenticity.
+
+The permanent HFS+ matrix passed **12/12** adapters against valid and malformed synthetic images, including source SHA-256 immutability and read-only result assertions. The full suite passed **60 tests with 0 failures and 0 skips**. The audited ledger advanced to **180/280 (64.3%)**.

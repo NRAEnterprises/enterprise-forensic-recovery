@@ -253,3 +253,43 @@ test('42 FAT and ext evidence adapters preserve bounded read-only contracts', as
   const outputEntries = await fs.readdir(output).catch(() => []);
   assert.ok(outputEntries.every(entry => !entry.endsWith('.bin')));
 });
+
+test('HFS+ preliminary adapters preserve bounded metadata and read-only provenance', async () => {
+  const root = await tempDir();
+  const image = path.join(root, 'hfs-audit.img');
+  const malformed = path.join(root, 'hfs-malformed.img');
+  const bytes = Buffer.alloc(4096);
+  const header = 1024;
+  bytes.write('H+', header, 'ascii');
+  bytes.writeUInt16BE(4, header + 2);
+  bytes.writeUInt32BE(0x40000000, header + 4);
+  bytes.writeUInt32BE(4096, header + 40);
+  bytes.writeUInt32BE(10000, header + 44);
+  bytes.writeUInt32BE(2500, header + 48);
+  for (const offset of [0x80, 0x100, 0x180, 0x200]) {
+    bytes.writeBigUInt64BE(4096n, header + offset);
+    bytes.writeUInt32BE(4096, header + offset + 8);
+    bytes.writeUInt32BE(1, header + offset + 12);
+    bytes.writeUInt32BE(8, header + offset + 16);
+    bytes.writeUInt32BE(1, header + offset + 20);
+  }
+  await fs.writeFile(image, bytes);
+  await fs.writeFile(malformed, Buffer.alloc(4096));
+  const filesystem = await import('../src/filesystem.js');
+  const names = [
+    'inspectHfsPlusVolumeHeaders', 'inspectHfsPlusVolumeMetadata', 'inspectHfsPlusCatalogFile',
+    'inspectHfsPlusExtentsFile', 'inspectHfsPlusAttributesFile', 'inspectHfsPlusStartupFile',
+    'inspectHfsPlusJournalInfo', 'inspectHfsPlusAllocationBitmap', 'inspectHfsPlusCatalogCandidates',
+    'inspectHfsPlusDeletedEntryCandidates', 'inspectHfsPlusResourceForkCandidates', 'validateHfsPlusEvidence'
+  ];
+  const before = crypto.createHash('sha256').update(await fs.readFile(image)).digest('hex');
+  const results = await Promise.all(names.map(name => filesystem[name](image, { maxHeaders: 4 })));
+  const after = crypto.createHash('sha256').update(await fs.readFile(image)).digest('hex');
+  assert.equal(results.length, 12);
+  assert.ok(results.every(result => typeof result.schema === 'string' && result.readOnly === true && result.sourceModified === false));
+  assert.ok(results.every(result => result.status === 'detected' || result.status === 'validated' || result.status === 'unsupported'));
+  assert.ok(results.filter(result => result.status !== 'unsupported').every(result => (result.headers?.length || result.records?.length || result.candidates?.length || result.cases?.length) > 0));
+  assert.equal(before, after);
+  const malformedResults = await Promise.all(names.map(name => filesystem[name](malformed, { maxHeaders: 4 })));
+  assert.ok(malformedResults.every(result => result.status === 'unsupported' || result.status === 'partial'));
+});
