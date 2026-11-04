@@ -480,3 +480,22 @@ export async function inspectApfsFilesystemTreeCandidates(source, options = {}) 
   }
   return { schema: 'recovery.apfs-filesystem-tree-candidates/v1', generatedAt: new Date().toISOString(), source: file, status: candidates.length ? 'detected' : nodes.status, candidates, nodesScanned: nodes.nodes?.length || 0, complete: nodes.complete && candidates.length < maxCandidates, readOnly: true, decoded: false, traversed: false, limitations: ['Key signatures are heuristic raw 64-bit candidates and are not validated as APFS filesystem-tree records', 'No names, extents, xattrs, directory relationships, values, or deleted-record semantics are decoded', 'Scanning is bounded by table-space and candidate quotas and does not establish complete tree coverage'] };
 }
+
+async function inspectApfsKeyTypeCandidates(source, options, keyTypes, schema, category) {
+  const file = path.resolve(source);
+  const tree = await inspectApfsFilesystemTreeCandidates(file, options);
+  const candidates = tree.candidates.filter(candidate => keyTypes.includes(candidate.keyType)).map(candidate => ({ ...candidate, category, evidence: `apfs-${category}-candidate` }));
+  return { schema, generatedAt: new Date().toISOString(), source: file, status: candidates.length ? 'detected' : tree.status, candidates, treeCandidatesScanned: tree.candidates.length, complete: tree.complete, readOnly: true, decoded: false, reconstructed: false, limitations: [`${category} candidates are raw APFS key-type signatures and are not validated as complete records`, 'Names, values, extents, ownership, deletion state, and filesystem relationships are not decoded', 'Scanning remains bounded and non-destructive'] };
+}
+
+export async function inspectApfsInodeDirectoryCandidates(source, options = {}) {
+  return inspectApfsKeyTypeCandidates(source, options, [1, 3], 'recovery.apfs-inode-directory-candidates/v1', 'inode-directory');
+}
+
+export async function inspectApfsExtentCandidates(source, options = {}) {
+  return inspectApfsKeyTypeCandidates(source, options, [4, 5], 'recovery.apfs-extent-candidates/v1', 'extent');
+}
+
+export async function inspectApfsXattrCandidates(source, options = {}) {
+  return inspectApfsKeyTypeCandidates(source, options, [2], 'recovery.apfs-xattr-candidates/v1', 'xattr');
+}
