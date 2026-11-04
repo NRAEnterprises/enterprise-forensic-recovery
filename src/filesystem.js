@@ -523,3 +523,15 @@ export async function inspectApfsSnapshotNameCandidates(source, options = {}) {
 export async function inspectApfsFileInfoCandidates(source, options = {}) {
   return inspectApfsKeyTypeCandidates(source, options, [9], 'recovery.apfs-file-info-candidates/v1', 'file-info');
 }
+
+export async function inspectApfsKeyType10Candidates(source, options = {}) {
+  return inspectApfsKeyTypeCandidates(source, options, [10], 'recovery.apfs-key-type-10-candidates/v1', 'key-type-10');
+}
+
+export async function inspectApfsKeyType11Candidates(source, options = {}) {
+  return inspectApfsKeyTypeCandidates(source, options, [11], 'recovery.apfs-key-type-11-candidates/v1', 'key-type-11');
+}
+
+export async function inspectApfsKeyType12Candidates(source, options = {}) {
+  return inspectApfsKeyTypeCandidates(source, options, [12], 'recovery.apfs-key-type-12-candidates/v1', 'key-type-12');
+}
