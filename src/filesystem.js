@@ -456,3 +456,27 @@ export async function inspectApfsBtreeRecordEvidence(source, options = {}) {
   }
   return { schema: 'recovery.apfs-btree-record-evidence/v1', generatedAt: new Date().toISOString(), source: file, status: records.length ? 'detected' : nodes.status, records, nodesScanned: nodes.nodes?.length || 0, complete: nodes.complete, readOnly: true, parsedKeys: false, parsedValues: false, traversed: false, limitations: ['Record windows use bounded uniform stride estimates from raw key counts and table-space length; they are not format-validated key/value boundaries', 'No keys, values, records, namespace names, or file data are decoded', 'Window scanning is capped and does not establish complete B-tree coverage'] };
 }
+
+export async function inspectApfsFilesystemTreeCandidates(source, options = {}) {
+  const file = path.resolve(source);
+  const nodes = await inspectApfsBtreeNodes(file, options);
+  const stat = await fs.stat(file);
+  const maxBytes = options.maxTreeScanBytes || 256 * 1024;
+  const maxCandidates = options.maxTreeCandidates || 512;
+  const candidates = [];
+  for (const node of nodes.nodes || []) {
+    const length = Math.min(node.tableSpaceLength || 0, maxBytes);
+    if (!length) continue;
+    const offset = node.offset + node.tableSpaceOffset;
+    const bytes = await sample(file, Math.min(length, Math.max(0, stat.size - offset)), offset);
+    for (let cursor = 0; cursor + 8 <= bytes.length && candidates.length < maxCandidates; cursor += 8) {
+      const raw = bytes.readBigUInt64LE(cursor);
+      if (raw === 0n) continue;
+      const keyType = Number(raw >> 60n);
+      const objectId = raw & 0x0fffffffffffffffn;
+      if (!keyType || objectId === 0n) continue;
+      candidates.push({ nodeOffset: node.offset, nodeObjectId: node.objectId, nodeLevel: node.level, offset: offset + cursor, rawKeyHex: raw.toString(16).padStart(16, '0'), keyType, objectId: objectId.toString(), evidence: 'apfs-filesystem-tree-key-signature' });
+    }
+  }
+  return { schema: 'recovery.apfs-filesystem-tree-candidates/v1', generatedAt: new Date().toISOString(), source: file, status: candidates.length ? 'detected' : nodes.status, candidates, nodesScanned: nodes.nodes?.length || 0, complete: nodes.complete && candidates.length < maxCandidates, readOnly: true, decoded: false, traversed: false, limitations: ['Key signatures are heuristic raw 64-bit candidates and are not validated as APFS filesystem-tree records', 'No names, extents, xattrs, directory relationships, values, or deleted-record semantics are decoded', 'Scanning is bounded by table-space and candidate quotas and does not establish complete tree coverage'] };
+}
