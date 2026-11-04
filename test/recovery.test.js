@@ -293,3 +293,29 @@ test('HFS+ preliminary adapters preserve bounded metadata and read-only provenan
   const malformedResults = await Promise.all(names.map(name => filesystem[name](malformed, { maxHeaders: 4 })));
   assert.ok(malformedResults.every(result => result.status === 'unsupported' || result.status === 'partial'));
 });
+
+test('modern filesystem evidence adapters preserve bounded signatures and immutability', async () => {
+  const root = await tempDir();
+  const fixtures = {};
+  for (const type of ['xfs', 'btrfs', 'zfs', 'refs']) fixtures[type] = path.join(root, `${type}.img`);
+  const xfs = Buffer.alloc(4096); xfs.write('XFSB', 0, 'ascii'); xfs.writeUInt32BE(4096, 4); xfs.writeBigUInt64BE(10000n, 8); await fs.writeFile(fixtures.xfs, xfs);
+  const btrfs = Buffer.alloc(4096); btrfs.write('_BHRfS_M', 0x40, 'ascii'); btrfs.writeUInt32LE(4096, 0x60); btrfs.writeUInt32LE(16384, 0x64); await fs.writeFile(fixtures.btrfs, btrfs);
+  const zfs = Buffer.alloc(4096); zfs.writeUInt32BE(0x00bab10c, 0); await fs.writeFile(fixtures.zfs, zfs);
+  const refs = Buffer.alloc(4096); refs.write('ReFS', 3, 'ascii'); refs.writeUInt32LE(3, 7); await fs.writeFile(fixtures.refs, refs);
+  const malformed = path.join(root, 'malformed.img'); await fs.writeFile(malformed, Buffer.alloc(4096));
+  const filesystem = await import('../src/filesystem.js');
+  const matrix = [
+    ['inspectXfsSuperblock', 'xfs'], ['inspectXfsAllocationSummary', 'xfs'], ['validateXfsEvidence', 'xfs'], ['inspectXfsInodeGeometry', 'xfs'],
+    ['inspectBtrfsSuperblock', 'btrfs'], ['inspectBtrfsChunkTreeHint', 'btrfs'], ['validateBtrfsEvidence', 'btrfs'],
+    ['inspectZfsUberblock', 'zfs'], ['inspectZfsPoolLabel', 'zfs'], ['validateZfsEvidence', 'zfs'],
+    ['inspectRefsVolumeHeader', 'refs'], ['inspectRefsMetadataHint', 'refs'], ['validateRefsEvidence', 'refs'],
+    ['inspectFilesystemSignatures', 'xfs'], ['inspectFilesystemGeometry', 'btrfs'], ['validateFilesystemSignatureEvidence', 'refs']
+  ];
+  const before = new Map(await Promise.all(Object.entries(fixtures).map(async ([type, file]) => [type, crypto.createHash('sha256').update(await fs.readFile(file)).digest('hex')])));
+  const results = await Promise.all(matrix.map(([name, type]) => filesystem[name](fixtures[type], { maxScanBytes: 4096 })));
+  assert.equal(results.length, 16);
+  assert.ok(results.every(result => result.status === 'detected' && result.readOnly === true && result.sourceModified === false && result.candidates.length > 0));
+  for (const [type, file] of Object.entries(fixtures)) assert.equal(crypto.createHash('sha256').update(await fs.readFile(file)).digest('hex'), before.get(type));
+  const malformedResults = await Promise.all(matrix.map(([name]) => filesystem[name](malformed, { maxScanBytes: 4096 })));
+  assert.ok(malformedResults.every(result => result.status === 'unsupported' && result.readOnly === true));
+});

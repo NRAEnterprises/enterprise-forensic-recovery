@@ -621,3 +621,42 @@ export async function validateHfsPlusEvidence(source, options = {}) {
   const cases = result.headers.map(header => ({ offset: header.offset, validSignature: header.signature === 'H+' || header.signature === 'HX', validGeometry: Number.isInteger(header.blockSize) && header.blockSize > 0 && Number.isInteger(header.totalBlocks) && header.totalBlocks > 0, sourceModified: false, rawSha256: header.rawSha256 }));
   return { schema: 'recovery.hfs-evidence-validation/v1', generatedAt: new Date().toISOString(), source: result.file, cases, status: cases.length && cases.every(item => item.validSignature && item.validGeometry) ? 'validated' : cases.length ? 'partial' : 'unsupported', complete: true, readOnly: true, sourceModified: false, limitations: ['Validation covers bounded header invariants only; catalog and journal semantics require separate format-level validation'] };
 }
+
+async function readModernFilesystemEvidence(source, options = {}) {
+  const file = path.resolve(source);
+  const stat = await fs.stat(file);
+  const maxScanBytes = Math.min(stat.size, options.maxScanBytes || 8 * 1024 * 1024);
+  const raw = await sample(file, maxScanBytes, 0);
+  const candidates = [];
+  if (raw.subarray(0, 4).toString('ascii') === 'XFSB') candidates.push({ type: 'xfs', offset: 0, magic: 'XFSB', blockSize: raw.length >= 8 ? raw.readUInt32BE(4) : null, dataBlocks: raw.length >= 16 ? raw.readBigUInt64BE(8).toString() : null, rawSha256: crypto.createHash('sha256').update(raw.subarray(0, Math.min(raw.length, 512))).digest('hex') });
+  const btrfsMagic = Buffer.from('_BHRfS_M', 'ascii');
+  const btrfsOffset = raw.indexOf(btrfsMagic);
+  if (btrfsOffset >= 0) candidates.push({ type: 'btrfs', offset: btrfsOffset, magic: '_BHRfS_M', sectorSize: raw.length >= btrfsOffset + 0x40 ? raw.readUInt32LE(btrfsOffset + 0x20) : null, nodeSize: raw.length >= btrfsOffset + 0x44 ? raw.readUInt32LE(btrfsOffset + 0x24) : null, rawSha256: crypto.createHash('sha256').update(raw.subarray(Math.max(0, btrfsOffset - 32), Math.min(raw.length, btrfsOffset + 480))).digest('hex') });
+  for (const endian of ['BE', 'LE']) { if (raw.length >= 4 && raw[`readUInt32${endian}`](0) === 0x00bab10c) candidates.push({ type: 'zfs', offset: 0, magic: '0x00bab10c', endian, rawSha256: crypto.createHash('sha256').update(raw.subarray(0, 512)).digest('hex') }); }
+  const refsOffset = raw.indexOf(Buffer.from('ReFS', 'ascii'));
+  if (refsOffset >= 0) candidates.push({ type: 'refs', offset: refsOffset, magic: 'ReFS', version: raw.length >= refsOffset + 8 ? raw.readUInt32LE(refsOffset + 4) : null, rawSha256: crypto.createHash('sha256').update(raw.subarray(Math.max(0, refsOffset - 16), Math.min(raw.length, refsOffset + 496))).digest('hex') });
+  return { file, stat, maxScanBytes, raw, candidates };
+}
+
+async function modernEvidenceAdapter(source, options, schema, types, evidence) {
+  const result = await readModernFilesystemEvidence(source, options);
+  const candidates = result.candidates.filter(candidate => types.includes(candidate.type)).map(({ type, offset, magic, rawSha256, ...metadata }) => ({ type, offset, magic, metadata, rawSha256, evidence }));
+  return { schema, generatedAt: new Date().toISOString(), source: result.file, candidates, status: candidates.length ? 'detected' : 'unsupported', complete: true, readOnly: true, sourceModified: false, limitations: ['This adapter reports bounded header evidence only; no mount, journal replay, allocation mutation, or deleted-record recovery is performed'] };
+}
+
+export async function inspectXfsSuperblock(source, options = {}) { return modernEvidenceAdapter(source, options, 'recovery.xfs-superblock/v1', ['xfs'], 'xfs-superblock'); }
+export async function inspectXfsAllocationSummary(source, options = {}) { return modernEvidenceAdapter(source, options, 'recovery.xfs-allocation-summary/v1', ['xfs'], 'xfs-allocation-summary'); }
+export async function validateXfsEvidence(source, options = {}) { return modernEvidenceAdapter(source, options, 'recovery.xfs-validation/v1', ['xfs'], 'xfs-header-validation'); }
+export async function inspectXfsInodeGeometry(source, options = {}) { return modernEvidenceAdapter(source, options, 'recovery.xfs-inode-geometry/v1', ['xfs'], 'xfs-inode-geometry-hint'); }
+export async function inspectBtrfsSuperblock(source, options = {}) { return modernEvidenceAdapter(source, options, 'recovery.btrfs-superblock/v1', ['btrfs'], 'btrfs-superblock'); }
+export async function inspectBtrfsChunkTreeHint(source, options = {}) { return modernEvidenceAdapter(source, options, 'recovery.btrfs-chunk-tree-hint/v1', ['btrfs'], 'btrfs-chunk-tree-hint'); }
+export async function validateBtrfsEvidence(source, options = {}) { return modernEvidenceAdapter(source, options, 'recovery.btrfs-validation/v1', ['btrfs'], 'btrfs-header-validation'); }
+export async function inspectZfsUberblock(source, options = {}) { return modernEvidenceAdapter(source, options, 'recovery.zfs-uberblock/v1', ['zfs'], 'zfs-uberblock'); }
+export async function inspectZfsPoolLabel(source, options = {}) { return modernEvidenceAdapter(source, options, 'recovery.zfs-pool-label/v1', ['zfs'], 'zfs-pool-label'); }
+export async function validateZfsEvidence(source, options = {}) { return modernEvidenceAdapter(source, options, 'recovery.zfs-validation/v1', ['zfs'], 'zfs-header-validation'); }
+export async function inspectRefsVolumeHeader(source, options = {}) { return modernEvidenceAdapter(source, options, 'recovery.refs-volume-header/v1', ['refs'], 'refs-volume-header'); }
+export async function inspectRefsMetadataHint(source, options = {}) { return modernEvidenceAdapter(source, options, 'recovery.refs-metadata-hint/v1', ['refs'], 'refs-metadata-hint'); }
+export async function validateRefsEvidence(source, options = {}) { return modernEvidenceAdapter(source, options, 'recovery.refs-validation/v1', ['refs'], 'refs-header-validation'); }
+export async function inspectFilesystemSignatures(source, options = {}) { return modernEvidenceAdapter(source, options, 'recovery.filesystem-signatures/v1', ['xfs', 'btrfs', 'zfs', 'refs'], 'cross-format-filesystem-signatures'); }
+export async function inspectFilesystemGeometry(source, options = {}) { return modernEvidenceAdapter(source, options, 'recovery.filesystem-geometry/v1', ['xfs', 'btrfs', 'zfs', 'refs'], 'cross-format-filesystem-geometry'); }
+export async function validateFilesystemSignatureEvidence(source, options = {}) { return modernEvidenceAdapter(source, options, 'recovery.filesystem-signature-validation/v1', ['xfs', 'btrfs', 'zfs', 'refs'], 'cross-format-signature-validation'); }

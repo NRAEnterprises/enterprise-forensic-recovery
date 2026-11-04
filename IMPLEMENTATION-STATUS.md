@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 180/280 items (64.3%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). The 12 HFS+ evidence rows promoted after the formal 60% gate have permanent matrix coverage and read-only source-hash verification.
+**Audited completion: 196/280 items (70.0%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). The 16 modern-filesystem evidence rows promoted at the 70% milestone have permanent matrix coverage and read-only source-hash verification.
 
 ## Audit gates
 
@@ -206,6 +206,22 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | HFS+ deleted-entry candidates | Implemented in 0.5.0 | Candidate fork structures are exposed without asserting deletion authenticity |
 | HFS+ resource-fork candidates | Implemented in 0.5.0 | Resource-fork structural candidates are retained with raw provenance |
 | HFS+ evidence validation | Implemented in 0.5.0 | Header signature and geometry invariants are checked without mounting |
+| XFS superblock evidence | Implemented in 0.5.0 | XFSB geometry and bounded raw header hashes are reported read-only |
+| XFS allocation summary | Implemented in 0.5.0 | XFS data-block summary fields are preserved without allocation changes |
+| XFS evidence validation | Implemented in 0.5.0 | XFS signature and bounded geometry candidates are validated |
+| XFS inode geometry hint | Implemented in 0.5.0 | XFS inode-related geometry is retained as an explicitly preliminary hint |
+| Btrfs superblock evidence | Implemented in 0.5.0 | Btrfs magic, sector size, node size, offsets, and hashes are reported |
+| Btrfs chunk-tree hint | Implemented in 0.5.0 | Chunk-tree-related structural evidence is reported without traversal |
+| Btrfs evidence validation | Implemented in 0.5.0 | Btrfs signature candidates are checked without mounting or replay |
+| ZFS uberblock evidence | Implemented in 0.5.0 | ZFS uberblock magic and byte-order evidence are retained |
+| ZFS pool-label evidence | Implemented in 0.5.0 | Pool-label candidates are reported as bounded raw evidence |
+| ZFS evidence validation | Implemented in 0.5.0 | ZFS signature candidates are validated without pool assembly |
+| ReFS volume-header evidence | Implemented in 0.5.0 | ReFS signature, offset, version hint, and raw hash are reported |
+| ReFS metadata hint | Implemented in 0.5.0 | ReFS metadata candidates are retained without semantic traversal |
+| ReFS evidence validation | Implemented in 0.5.0 | ReFS signature candidates are validated read-only |
+| Cross-format filesystem signatures | Implemented in 0.5.0 | XFS, Btrfs, ZFS, and ReFS signatures are normalized into one evidence schema |
+| Cross-format filesystem geometry | Implemented in 0.5.0 | Bounded geometry hints are exposed with source offsets and hashes |
+| Cross-format signature validation | Implemented in 0.5.0 | Multi-format signature evidence is validated without mounting |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule

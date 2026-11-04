@@ -104,3 +104,9 @@ The gate passes for the declared moderate/high/critical audit scope. The impleme
 A bounded HFS+ evidence slice was added after the formal 60% gate. Twelve adapters now report volume headers, volume metadata, catalog/extents/attributes/startup fork descriptors, journal information, allocation summaries, catalog/deleted/resource-fork candidates, and header validation. The implementation is explicitly preliminary: it does not assemble extents, replay journals, recover names, mount volumes, or assert deletion authenticity.
 
 The permanent HFS+ matrix passed **12/12** adapters against valid and malformed synthetic images, including source SHA-256 immutability and read-only result assertions. The full suite passed **60 tests with 0 failures and 0 skips**. The audited ledger advanced to **180/280 (64.3%)**.
+
+## 70% milestone checkpoint — 2026-11-04
+
+A 16-target modern-filesystem evidence slice was added beyond the 64.3% milestone. The adapters cover bounded XFS, Btrfs, ZFS, and ReFS signatures, geometry and metadata hints, validation, and normalized cross-format evidence. They are read-only and explicitly preliminary; no filesystem mounting, pool assembly, journal replay, allocation mutation, or deleted-record recovery is claimed.
+
+The permanent modern-filesystem matrix passed **16/16** adapters against valid and malformed synthetic images with unchanged source hashes. The full suite passed **61 tests with 0 failures and 0 skips**. Package smoke passed, dependency audit reported **0 vulnerabilities**, syntax and diff checks passed, and the audited ledger advanced to **196/280 (70.0%)**.

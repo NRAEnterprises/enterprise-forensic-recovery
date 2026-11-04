@@ -83,7 +83,8 @@ The authoritative count is the number of rows marked `Implemented` in the status
 | `AUDIT-60-APFS` | 23 | APFS header, volume, crypto, checkpoint, object-map, snapshot, B-tree, and raw key-class adapters with permanent matrix coverage |
 | `AUDIT-60-FAT-EXT` | 42 | FAT fixed-root, orphan, slack, carving, reconciliation, pipeline, and ext checksum/feature adapters with permanent 42-target matrix coverage |
 | `POST-60-HFS` | 12 | HFS+ volume, fork, journal, allocation, candidate, and validation adapters with permanent 12-target matrix coverage |
-| **Total** | **180** | **64.3% of 280** |
+| `MILESTONE-70-MODERN-FS` | 16 | XFS, Btrfs, ZFS, ReFS, and cross-format signature/geometry adapters with permanent 16-target matrix coverage |
+| **Total** | **196** | **70.0% of 280** |
 
 ## Stage gates
 
