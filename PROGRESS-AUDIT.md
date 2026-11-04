@@ -4,7 +4,7 @@
 
 No implementation commits or source modules were lost. The discrepancy was caused by a stale manually maintained headline counter in `IMPLEMENTATION-STATUS.md`. The repository retained the complete feature history from the hardened foundation through the 1.3.0 catalog/report-index block and the later 0.5.0 ext/JBD2 and catalog additions.
 
-The authoritative count is the number of rows marked `Implemented` in the status table, provided each row has code, tests, documentation, and an audit commit. The current ledger contains **103 implemented rows out of 280**, equal to **36.8%**.
+The authoritative count is the number of rows marked `Implemented` in the status table, provided each row has code, tests, documentation, and an audit commit. The current ledger contains **126 implemented rows out of 280**, equal to **45.0%**. The 23-row APFS promotion is backed by the permanent APFS adapter matrix test and the 2026-11-03 benchmark follow-up.
 
 ## Reconciliation evidence
 
@@ -80,7 +80,8 @@ The authoritative count is the number of rows marked `Implemented` in the status
 | `NEXT-48` | 1 | ext deleted-inode table scanning |
 | `NEXT-49` | 1 | ext extra timestamp decoding |
 | `NEXT-50` | 1 | ext high UID/GID decoding |
-| **Total** | **103** | **36.8% of 280** |
+| `AUDIT-60-APFS` | 23 | APFS header, volume, crypto, checkpoint, object-map, snapshot, B-tree, and raw key-class adapters with permanent matrix coverage |
+| **Total** | **126** | **45.0% of 280** |
 
 ## Stage gates
 

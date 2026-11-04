@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 103/280 items (36.8%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). No prior implementation blocks were lost; the previous headline counter was stale.
+**Audited completion: 126/280 items (45.0%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). The 23 APFS adapter rows promoted at the 60% benchmark have permanent matrix coverage; remaining recent provisional work is not counted until it has equivalent ledger and regression evidence.
 
 ## Audit gates
 
@@ -129,6 +129,29 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | ext deleted-inode table scanning | Implemented in 0.5.0 | Bounded inode-table scans report deletion-time and zero-link candidates with offsets, metadata, and raw hashes |
 | ext extra timestamp decoding | Implemented in 0.5.0 | Inode metadata exposes nanoseconds and extended epoch bits while preserving ISO/string compatibility |
 | ext high UID/GID decoding | Implemented in 0.5.0 | Inode metadata exposes low/high ownership components and reconstructed 32-bit UID/GID values |
+| APFS header inspection | Implemented in 0.5.0 | Read-only Apple/APFS header classification with explicit preliminary limitations |
+| APFS volume-superblock discovery | Implemented in 0.5.0 | Bounded APFS volume superblock candidates preserve offsets and raw hashes |
+| APFS volume names and checkpoints | Implemented in 0.5.0 | Volume metadata candidates expose bounded names and checkpoint fields with raw provenance |
+| APFS keyless crypto-state reporting | Implemented in 0.5.0 | Encryption and crypto flags are reported without key handling or decryption |
+| APFS container checkpoint rings | Implemented in 0.5.0 | Bounded descriptor/data ring slots preserve offsets, XIDs, and hashes without replay |
+| APFS object-header inventory | Implemented in 0.5.0 | Bounded object identifiers, XIDs, types, subtypes, offsets, and hashes are inventoried |
+| APFS object-map candidates | Implemented in 0.5.0 | Object-map fields are retained as bounded raw candidates without lookup or reconstruction |
+| APFS snapshot evidence | Implemented in 0.5.0 | Snapshot references and metadata candidates are reported without restore or mount |
+| APFS B-tree node headers | Implemented in 0.5.0 | Node flags, levels, counts, and space fields are preserved as raw evidence |
+| APFS B-tree record windows | Implemented in 0.5.0 | Bounded heuristic table-space windows include offsets and SHA-256 hashes |
+| APFS filesystem-tree key candidates | Implemented in 0.5.0 | Raw 64-bit key signatures preserve type nibbles and 60-bit object IDs |
+| APFS inode/directory candidates | Implemented in 0.5.0 | Key-type 1/3 candidates are classified without namespace reconstruction |
+| APFS extent candidates | Implemented in 0.5.0 | Key-type 4/5 candidates are classified without extent decoding |
+| APFS xattr candidates | Implemented in 0.5.0 | Key-type 2 candidates are classified without value decoding |
+| APFS sibling candidates | Implemented in 0.5.0 | Key-type 3 sibling candidates are classified as raw evidence |
+| APFS file-extent candidates | Implemented in 0.5.0 | Key-type 5 candidates are classified without file-content recovery |
+| APFS directory-stat candidates | Implemented in 0.5.0 | Key-type 6 candidates are classified without semantic decoding |
+| APFS snapshot-metadata candidates | Implemented in 0.5.0 | Key-type 7 candidates are classified without snapshot reconstruction |
+| APFS snapshot-name candidates | Implemented in 0.5.0 | Key-type 8 candidates are classified without name decoding |
+| APFS file-info candidates | Implemented in 0.5.0 | Key-type 9 candidates are retained as preliminary raw evidence |
+| APFS raw key-type 10 candidates | Implemented in 0.5.0 | Numeric key-type 10 candidates are inventoried without unsupported semantic labels |
+| APFS raw key-type 11 candidates | Implemented in 0.5.0 | Numeric key-type 11 candidates are inventoried without unsupported semantic labels |
+| APFS raw key-type 12 candidates | Implemented in 0.5.0 | Numeric key-type 12 candidates are inventoried without unsupported semantic labels |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule

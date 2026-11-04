@@ -67,3 +67,26 @@ The previously cataloged low native-fixture finding is resolved for ARM64. The p
 The complete regression suite was run on the current `aarch64` / `linux-arm64` environment. Node tests completed with **57 passed, 0 failed, 0 skipped**. The native Rust crate compiled in release mode and its test target completed with **0 failed** (the crate currently contains no Rust unit tests). Native parity executed successfully through the ARM64 fixture. Package smoke, dependency audit, and progress reconciliation also passed: `npm run pack:smoke`, `npm audit --omit=dev --audit-level=moderate` with 0 vulnerabilities, and `npm run progress:check` at 103/280 audited rows.
 
 The packaged `linux-x64` binary was inspected and identified as a valid x86-64 ELF, but this environment is ARM64 and has no `qemu-x86_64`, Docker, or Podman runtime available. Therefore x86-64 execution coverage could not be run here. The x64 fixture remains statically verified and packaged, but cross-architecture parity is **not claimed**. A separate x86-64 runner or emulator is required to close that coverage item.
+
+
+## Benchmark follow-up — 2026-11-03
+
+The requested benchmarked audit was rerun after the APFS preliminary adapter batch. Permanent regression coverage was added for the complete APFS export matrix: 22 adapters covering headers, volumes, crypto state, checkpoint rings, objects, object maps, snapshots, B-tree evidence, filesystem-tree signatures, and raw key classes. The fixture checks bounded output, read-only flags, malformed-input handling, and source SHA-256 immutability.
+
+Verification results:
+
+- `npm test`: **58 passed, 0 failed, 0 skipped**
+- APFS permanent matrix test: **passed**, 22 adapters exercised concurrently
+- `npm run pack:smoke`: previously passed before this test-only change; package installation, `doctor`, and case creation succeeded
+- `npm audit --omit=dev --audit-level=moderate`: **0 vulnerabilities**
+- `npm run progress:check`: **126/280, 45.0%, markerMatches=true**
+- `node --check src/index.js`: passed
+- `node --check src/filesystem.js`: passed
+- `git diff --check`: passed
+- Source mutation checks: passed for the APFS matrix fixture and malformed fixture
+
+### Accounting reconciliation
+
+The prior **170 provisional** headline included 44 recent implementation claims that were not represented as rows in the authoritative 280-item implementation ledger. Those claims are not promoted by this audit. The 23 APFS rows with committed code, permanent regression coverage, documentation, and progress-ledger evidence are promoted from provisional to audited. The authoritative audited count is therefore **126/280 (45.0%)**. The reconciled tracked provisional scope is also **126/126**; the remaining 44 unledgered claims remain explicitly deferred rather than counted.
+
+No critical or high-severity finding was introduced. The APFS adapters remain preliminary evidence collectors: they do not decrypt, mount, replay, traverse complete trees, decode filesystem names or values, reconstruct ownership, or mutate sources. The formal 60% ledger gate remains **168 audited rows** and has not been falsely declared passed.

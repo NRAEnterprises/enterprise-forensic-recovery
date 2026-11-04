@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { createCase, addSource, imageSource, inspectSource, inventoryCase, identifyCase, carveFile, verifyCase, verifyAudit, doctor, extractArchives, STATUS } from '../src/index.js';
@@ -133,3 +134,63 @@ test('ext deleted-inode scanning reports deletion evidence and hashes', async ()
 test('ext inode metadata decodes extra timestamp precision and epoch bits', async () => { const root = await tempDir(); const image = path.join(root, 'ext-extra-times.img'); const bytes = Buffer.alloc(16 * 1024); bytes.writeUInt32LE(1, 1024); bytes.writeUInt32LE(16, 1024 + 4); bytes.writeUInt32LE(16, 1024 + 32); bytes.writeUInt32LE(1, 1024 + 40); bytes.writeUInt16LE(0xef53, 1024 + 56); bytes.writeUInt16LE(160, 1024 + 88); bytes.writeUInt16LE(32, 1024 + 254); bytes.writeUInt32LE(8, 2048 + 8); const inode = 8 * 1024; bytes.writeUInt16LE(0x81a4, inode); bytes.writeUInt32LE(1, inode + 8); bytes.writeUInt32LE(1, inode + 12); bytes.writeUInt32LE(1, inode + 16); bytes.writeUInt16LE(32, inode + 128); bytes.writeUInt32LE(123456789, inode + 140); bytes.writeUInt32LE((1 << 30) | 123, inode + 136); await fs.writeFile(image, bytes); const result = await inspectExtInodes(image, [1]); const metadata = result.inodes[0]; assert.equal(metadata.extraIsize, 32); assert.equal(metadata.timestamps.atime.nanoseconds, 123456789); assert.equal(metadata.timestamps.mtime.extendedSeconds, 4294967297); assert.equal(metadata.timestamps.mtime.nanoseconds, 123); assert.equal(typeof metadata.atimeIso, 'string'); });
 
 test('ext inode metadata decodes high UID and GID components', async () => { const root = await tempDir(); const image = path.join(root, 'ext-high-owner.img'); const bytes = Buffer.alloc(16 * 1024); bytes.writeUInt32LE(1, 1024); bytes.writeUInt32LE(16, 1024 + 4); bytes.writeUInt32LE(16, 1024 + 32); bytes.writeUInt32LE(1, 1024 + 40); bytes.writeUInt16LE(0xef53, 1024 + 56); bytes.writeUInt16LE(160, 1024 + 88); bytes.writeUInt32LE(8, 2048 + 8); const inode = 8 * 1024; bytes.writeUInt16LE(0x81a4, inode); bytes.writeUInt16LE(0x1234, inode + 2); bytes.writeUInt16LE(0x5678, inode + 24); bytes.writeUInt16LE(0x0001, inode + 120); bytes.writeUInt16LE(0x0002, inode + 122); await fs.writeFile(image, bytes); const result = await inspectExtInodes(image, [1]); const metadata = result.inodes[0]; assert.equal(metadata.uid, 0x1234); assert.equal(metadata.gid, 0x5678); assert.equal(metadata.uidHigh, 1); assert.equal(metadata.gidHigh, 2); assert.equal(metadata.uidFull, 0x11234); assert.equal(metadata.gidFull, 0x25678); });
+
+test('APFS preliminary adapters preserve bounded evidence across the full export matrix', async () => {
+  const root = await tempDir();
+  const file = path.join(root, 'apfs-synthetic.img');
+  const malformed = path.join(root, 'malformed.img');
+  const block = 4096;
+  const bytes = Buffer.alloc(block * 16);
+  bytes.write('NXSB', 32, 'ascii');
+  bytes.writeUInt32LE(block, 36);
+  bytes.writeBigUInt64LE(16n, 40);
+  bytes.write('APSB', 2 * block + 32, 'ascii');
+  const base = 3 * block;
+  bytes.writeBigUInt64LE(9000n, base + 8);
+  bytes.writeBigUInt64LE(8000n, base + 16);
+  bytes.writeUInt32LE(3, base + 24);
+  bytes.writeUInt32LE(1, base + 28);
+  bytes.writeUInt16LE(5, base + 32);
+  bytes.writeUInt16LE(2, base + 34);
+  bytes.writeUInt32LE(12, base + 36);
+  bytes.writeUInt16LE(64, base + 40);
+  bytes.writeUInt16LE(96, base + 42);
+  for (let type = 1; type <= 12; type++) bytes.writeBigUInt64LE((BigInt(type) << 60n) | BigInt(type * 1000), base + 64 + (type - 1) * 8);
+  await fs.writeFile(file, bytes);
+  await fs.writeFile(malformed, Buffer.alloc(64));
+  const {
+    inspectApfsVolumeSuperblocks, inspectApfsVolumeNamesAndCheckpoints, inspectApfsCryptoStates,
+    inspectApfsContainerCheckpoints, inspectApfsObjectHeaders, inspectApfsObjectMaps,
+    inspectApfsSnapshots, inspectApfsBtreeNodes, inspectApfsBtreeRecordEvidence,
+    inspectApfsFilesystemTreeCandidates, inspectApfsInodeDirectoryCandidates, inspectApfsExtentCandidates,
+    inspectApfsXattrCandidates, inspectApfsSiblingCandidates, inspectApfsFileExtentCandidates,
+    inspectApfsDirectoryStatsCandidates, inspectApfsSnapshotMetadataCandidates, inspectApfsSnapshotNameCandidates,
+    inspectApfsFileInfoCandidates, inspectApfsKeyType10Candidates, inspectApfsKeyType11Candidates,
+    inspectApfsKeyType12Candidates
+  } = await import('../src/filesystem.js');
+  const adapters = [
+    inspectApfsVolumeSuperblocks, inspectApfsVolumeNamesAndCheckpoints, inspectApfsCryptoStates,
+    inspectApfsContainerCheckpoints, inspectApfsObjectHeaders, inspectApfsObjectMaps, inspectApfsSnapshots,
+    inspectApfsBtreeNodes, inspectApfsBtreeRecordEvidence, inspectApfsFilesystemTreeCandidates,
+    inspectApfsInodeDirectoryCandidates, inspectApfsExtentCandidates, inspectApfsXattrCandidates,
+    inspectApfsSiblingCandidates, inspectApfsFileExtentCandidates, inspectApfsDirectoryStatsCandidates,
+    inspectApfsSnapshotMetadataCandidates, inspectApfsSnapshotNameCandidates, inspectApfsFileInfoCandidates,
+    inspectApfsKeyType10Candidates, inspectApfsKeyType11Candidates, inspectApfsKeyType12Candidates
+  ];
+  const before = crypto.createHash('sha256').update(await fs.readFile(file)).digest('hex');
+  const results = await Promise.all(adapters.map(adapter => adapter(file, { maxApfsBlocks: 16, maxObjectBlocks: 4, maxTreeCandidates: 64 })));
+  const after = crypto.createHash('sha256').update(await fs.readFile(file)).digest('hex');
+  assert.equal(results.length, 22);
+  assert.ok(results.every(result => result.readOnly === true));
+  assert.ok(results.every(result => result.status === 'detected' || result.status === 'partial' || result.status === 'assessed-keyless' || result.status === 'unsupported'));
+  assert.equal(results.find(result => result.schema === 'recovery.apfs-filesystem-tree-candidates/v1').candidates.length, 12);
+  assert.equal(results.find(result => result.schema === 'recovery.apfs-inode-directory-candidates/v1').candidates.length, 2);
+  assert.equal(results.find(result => result.schema === 'recovery.apfs-extent-candidates/v1').candidates.length, 2);
+  assert.equal(results.find(result => result.schema === 'recovery.apfs-xattr-candidates/v1').candidates.length, 1);
+  assert.equal(results.find(result => result.schema === 'recovery.apfs-key-type-10-candidates/v1').candidates.length, 1);
+  assert.equal(results.find(result => result.schema === 'recovery.apfs-key-type-11-candidates/v1').candidates.length, 1);
+  assert.equal(results.find(result => result.schema === 'recovery.apfs-key-type-12-candidates/v1').candidates.length, 1);
+  assert.equal(before, after);
+  const malformedResults = await Promise.all(adapters.map(adapter => adapter(malformed, { maxObjectBlocks: 4 })));
+  assert.ok(malformedResults.every(result => result.status === 'unsupported'));
+});
