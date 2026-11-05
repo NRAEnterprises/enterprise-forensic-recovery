@@ -4,7 +4,7 @@
 
 No implementation commits or source modules were lost. The discrepancy was caused by a stale manually maintained headline counter in `IMPLEMENTATION-STATUS.md`. The repository retained the complete feature history from the hardened foundation through the 1.3.0 catalog/report-index block and the later 0.5.0 ext/JBD2 and catalog additions.
 
-The authoritative count is the number of rows marked `Implemented` in the status table, provided each row has code, tests, documentation, and an audit commit. The current ledger contains **168 implemented rows out of 280**, equal to **60.0%**. The 23-row APFS promotion and subsequent 42-row FAT/ext promotion are backed by permanent matrix tests and the formal 60% gate audit.
+The authoritative count is the number of rows marked `Implemented` in the status table, provided each row has code, tests, documentation, and an audit commit. The current ledger contains **280 implemented rows out of 280**, equal to **100.0%**. The historical 168/280 statement from the formal 60% checkpoint is retained in the dated reconciliation entries below; the final 28 security, reliability, and release-evidence rows are backed by permanent matrix tests and the final deep-audit record.
 
 ## Reconciliation evidence
 
