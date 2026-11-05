@@ -4,6 +4,8 @@ use std::fs::OpenOptions;
 use std::io::{self, Read, Seek, SeekFrom, Write};
 use std::path::Path;
 
+pub mod cloud;
+
 const CHUNK: usize = 1024 * 1024;
 
 fn usage() -> ! {
