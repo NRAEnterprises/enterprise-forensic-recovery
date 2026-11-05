@@ -126,3 +126,17 @@ A 28-target operational-provenance slice was completed beyond the 80% milestone 
 The permanent operational matrix passed **28/28** against valid and malformed bundles, including unchanged source SHA-256 and read-only result assertions. The full suite passed **63 tests with 0 failures and 0 skips**. Package smoke passed, dependency audit reported **0 vulnerabilities**, syntax and diff checks passed, and the audited ledger advanced to **252/280 (90.0%)**.
 
 The 90% gate passes for the declared moderate/high/critical scope. The adapters validate supplied operational evidence; they do not provide external attestation, cloud authorization, cryptographic signing, SIEM delivery, or destructive workflow approval.
+
+## Final 100% gate checkpoint — 2026-11-05
+
+The final 28 audited targets were added through bounded security, reliability, and release-evidence validators. The final slice covers threat-model evidence, dependency-audit records, parser isolation, secure temporary storage, policy and privilege controls, release checksums and provenance, plugin trust, network-deny posture, malware-safe handling, resource guards, streaming, resume checkpoints, bounded concurrency, backpressure, atomic output, crash recovery, storage forecasts, package contents, release gates, SBOMs, artifact checksums, reproducible builds, parser corpus provenance, mutation results, platform matrices, and clean-install evidence.
+
+The permanent final matrix passed **28/28** against a valid bundle and malformed input, including unchanged source SHA-256 and read-only result assertions. One extra secure-deletion inspection helper remains provisional and is not counted. The audited ledger now reports **280/280 (100.0%)**. This promotion starts the mandatory final deep audit; it does not by itself claim production certification, external forensic validation, or complete platform coverage.
+
+## Final deep-audit results — 2026-11-05
+
+The final deep-audit run produced **64 Node tests passed, 0 failed, 0 skipped**, including the full public regression suite and the permanent 28-target final matrix. Package clean-install smoke passed; `npm pack --dry-run` included the expected 31 package files and both native fixtures; `npm audit --omit=dev --audit-level=moderate` reported **0 vulnerabilities**; progress reconciliation reported **280/280, 100.0%, markerMatches=true**; syntax and diff-integrity checks passed; the CLI doctor reported `recovery.doctor/v1` with a discovered native binary; malformed-input, source-immutability, and read-only assertions passed through the permanent matrices.
+
+The standalone Rust crate test was attempted but could not execute because the sandbox image does not provide the `cargo` executable (`cargo: command not found`). This is recorded as an environment coverage limitation, not as a passing native test. The packaged ARM64 and x64 native binaries were present and identified by `file`, and the existing Node native-parity regression passed. Cross-platform execution beyond the current Linux ARM64 host remains unverified in this environment.
+
+The 100% ledger therefore records implementation and permanent regression coverage, while the release-readiness limitation remains explicit: independent Rust-toolchain execution and additional host-platform matrices require a toolchain-enabled CI or target environment.

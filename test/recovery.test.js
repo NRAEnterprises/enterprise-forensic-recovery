@@ -405,3 +405,54 @@ test('80-to-90 operational provenance adapters preserve read-only contracts', as
   const malformedResults = await Promise.all(names.map(name => operations[name](malformed)));
   assert.ok(malformedResults.every(result => result.readOnly === true && result.sourceModified === false));
 });
+
+
+test('final 28 security reliability and release adapters preserve read-only contracts', async () => {
+  const root = await tempDir();
+  const bundle = path.join(root, 'final-gate.json');
+  const malformed = path.join(root, 'final-malformed.json');
+  const value = {
+    threats: [{ category: 'archive' }], vulnerabilities: 0, auditLevel: 'moderate',
+    parserIsolation: { enabled: true, timeLimitMs: 1000, memoryLimitBytes: 1048576, outputLimitBytes: 1048576 },
+    temporaryStorage: { controlledDirectory: true, restrictivePermissions: true, cleanup: true },
+    policy: { sourceTypes: ['file'], destinations: ['reports'], network: 'denied' },
+    analysisUser: 'forensic', privilegedOperationsSeparated: true,
+    assets: [{ name: 'package.tgz', sha256: 'a'.repeat(64), size: 512 }],
+    builder: 'ci', buildType: 'reproducible', attestation: true,
+    plugins: [{ name: 'safe', version: '1.0.0', signature: 'sig', allowlisted: true }],
+    networkDenied: true, executeRecoveredFiles: false, quarantine: true,
+    resourceGuards: { memoryBytes: 1048576, timeMs: 1000, outputBytes: 1048576 },
+    streaming: true, chunkSize: 512, checkpoint: { offset: 512, parserState: 'scan' },
+    concurrency: 2, backpressure: true, backpressurePolicy: { enabled: true, highWaterMark: 4 },
+    atomicOutput: { atomic: true, renameCommit: true, fsync: true }, crashRecovery: true,
+    recoveredCheckpoint: true, storageForecast: { sourceBytes: 4096, outputBytes: 1024, temporaryBytes: 512, totalBytes: 5632 },
+    required: ['src', 'package.json'], present: ['src', 'package.json'],
+    checks: [{ name: 'tests', ok: true }, { name: 'audit', ok: true }],
+    components: [{ name: 'node' }], reproducible: true, matchingHash: true,
+    fixtures: [{ name: 'valid', license: 'Apache-2.0' }], mutations: 3, caught: 3,
+    platforms: [{ name: 'linux', ok: true }, { name: 'darwin', ok: true }], installed: true, smoke: true
+  };
+  await fs.writeFile(bundle, JSON.stringify(value));
+  await fs.writeFile(malformed, '{not-json');
+  const operations = await import('../src/operations.js');
+  const names = [
+    'inspectThreatModelEvidence', 'validateDependencyAuditRecord', 'inspectParserIsolationPolicy',
+    'validateSecureTemporaryStorage', 'inspectPolicyControls', 'validatePrivilegeSeparation',
+    'inspectReleaseChecksumEvidence', 'validateProvenanceAttestation', 'validatePluginTrustRecord',
+    'validateNetworkDenyRecord', 'validateMalwareSafeHandling', 'validateResourceGuards',
+    'inspectStreamingPolicy', 'validateResumeCheckpoint', 'validateConcurrencyPolicy',
+    'inspectBackpressurePolicy', 'validateAtomicOutputPlan', 'validateCrashRecoveryRecord',
+    'inspectStorageForecast', 'validatePackageContents', 'validateReleaseGate',
+    'inspectSbomEvidence', 'validateArtifactChecksums', 'validateReproducibleBuildRecord',
+    'inspectCorpusProvenance', 'validateMutationTestRecord', 'validatePlatformMatrix',
+    'validateCleanInstallRecord'
+  ];
+  assert.equal(names.length, 28);
+  const before = crypto.createHash('sha256').update(await fs.readFile(bundle)).digest('hex');
+  const results = await Promise.all(names.map(name => operations[name](bundle)));
+  assert.ok(results.every(result => (result.status === 'detected' || result.status === 'validated') && result.readOnly === true && result.sourceModified === false));
+  assert.ok(results.every(result => (result.records?.length || result.ranges?.length) > 0));
+  assert.equal(before, crypto.createHash('sha256').update(await fs.readFile(bundle)).digest('hex'));
+  const malformedResults = await Promise.all(names.map(name => operations[name](malformed)));
+  assert.ok(malformedResults.every(result => result.readOnly === true && result.sourceModified === false));
+});

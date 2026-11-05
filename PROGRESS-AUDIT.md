@@ -86,7 +86,8 @@ The authoritative count is the number of rows marked `Implemented` in the status
 | `MILESTONE-70-MODERN-FS` | 16 | XFS, Btrfs, ZFS, ReFS, and cross-format signature/geometry adapters with permanent 16-target matrix coverage |
 | `MILESTONE-80-EVIDENCE` | 28 | Metadata, slack, unallocated, fragmentation, carving, content, project, and range-validation adapters with permanent 28-target matrix coverage |
 | `MILESTONE-90-OPERATIONS` | 28 | Acquisition, provenance, audit-chain, report, output-safety, dry-run, capability, parity, and benchmark adapters with permanent 28-target matrix coverage |
-| **Total** | **252** | **90.0% of 280** |
+| `MILESTONE-100-FINAL` | 28 | Security posture, resource guards, streaming/checkpoints, crash/recovery, package/release, corpus, mutation, platform, and clean-install evidence with permanent 28-target matrix coverage |
+| **Total** | **280** | **100.0% of 280** |
 
 ## Stage gates
 

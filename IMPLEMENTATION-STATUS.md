@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 252/280 items (90.0%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). The 28 operational-provenance rows promoted at the 90% milestone have permanent matrix coverage and read-only source-hash verification.
+**Audited completion: 280/280 items (100.0%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). The final 28 security, reliability, and release-evidence rows have permanent matrix coverage and read-only source-hash verification. One additional secure-deletion inspection helper remains provisional and is not counted.
 
 ## Audit gates
 
@@ -278,6 +278,34 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Native-parity evidence | Implemented in 0.5.0 | Binary, architecture, and parity declarations are preserved |
 | Benchmark-record validation | Implemented in 0.5.0 | Duration and byte counters are validated |
 | Operational-bundle validation | Implemented in 0.5.0 | Required operational fields and read-only invariants are checked |
+| Threat-model evidence | Implemented in 0.5.0 | Threat categories are inventoried without claiming independent review |
+| Dependency-audit validation | Implemented in 0.5.0 | Vulnerability count and audit level are checked |
+| Parser-isolation policy | Implemented in 0.5.0 | Time, memory, and output isolation declarations are preserved |
+| Secure temporary-storage validation | Implemented in 0.5.0 | Controlled-directory and restrictive-permission declarations are checked |
+| Policy-controls evidence | Implemented in 0.5.0 | Source, destination, and network policy fields are normalized |
+| Privilege-separation validation | Implemented in 0.5.0 | Analysis identity and privileged-operation separation are checked |
+| Release-checksum evidence | Implemented in 0.5.0 | Release asset names, sizes, and SHA-256 values are preserved |
+| Provenance-attestation validation | Implemented in 0.5.0 | Builder and build-type attestation fields are checked |
+| Plugin-trust validation | Implemented in 0.5.0 | Version, signature, and allowlist evidence are checked |
+| Network-deny validation | Implemented in 0.5.0 | Offline/network-denied declarations are validated |
+| Malware-safe handling validation | Implemented in 0.5.0 | Recovered-file execution is explicitly refused |
+| Resource-guard validation | Implemented in 0.5.0 | Memory, time, and output limits are checked |
+| Streaming-policy evidence | Implemented in 0.5.0 | Streaming and chunk-size declarations are preserved |
+| Resume-checkpoint validation | Implemented in 0.5.0 | Nonnegative resume offsets and parser state are checked |
+| Concurrency-policy validation | Implemented in 0.5.0 | Positive bounded worker declarations are checked |
+| Backpressure-policy evidence | Implemented in 0.5.0 | Backpressure and high-water-mark declarations are preserved |
+| Atomic-output validation | Implemented in 0.5.0 | Atomic/rename commit declarations are checked |
+| Crash-recovery validation | Implemented in 0.5.0 | Crash-recovery and checkpoint evidence are checked |
+| Storage-forecast evidence | Implemented in 0.5.0 | Source, output, temporary, and total estimates are preserved |
+| Package-content validation | Implemented in 0.5.0 | Required package contents and excluded paths are checked |
+| Release-gate validation | Implemented in 0.5.0 | Release checks must be explicitly successful |
+| SBOM evidence | Implemented in 0.5.0 | Component inventory and hashes are preserved as evidence |
+| Artifact-checksum validation | Implemented in 0.5.0 | Release asset SHA-256 format is checked |
+| Reproducible-build validation | Implemented in 0.5.0 | Rebuild and matching-hash declarations are checked |
+| Parser-corpus provenance | Implemented in 0.5.0 | Fixture counts and licenses are preserved |
+| Mutation-test validation | Implemented in 0.5.0 | Mutation and caught counts are compared |
+| Platform-matrix validation | Implemented in 0.5.0 | Platform results must be explicitly successful |
+| Clean-install validation | Implemented in 0.5.0 | Install and smoke-test declarations are checked |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule
