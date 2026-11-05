@@ -21,7 +21,8 @@
     "./case-status": "./src/case-status.js",
     "./fingerprint": "./src/fingerprint.js",
     "./catalogs": "./src/catalogs.js",
-    "./report-index": "./src/report-index.js"
+    "./report-index": "./src/report-index.js",
+    "./operations": "./src/operations.js"
   },
   "sideEffects": false,
   "files": [

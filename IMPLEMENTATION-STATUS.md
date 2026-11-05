@@ -2,7 +2,7 @@
 
 This document tracks actual implementation status. A backlog item is marked **implemented** only after code, tests, documentation, and an audit result exist. “Planned” does not mean available.
 
-**Audited completion: 224/280 items (80.0%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). The 28 post-70 evidence rows promoted at the 80% milestone have permanent matrix coverage and read-only source-hash verification.
+**Audited completion: 252/280 items (90.0%).** This count is computed from all implemented rows in this tracker and reconciled against the introducing commits in [`PROGRESS-AUDIT.md`](./PROGRESS-AUDIT.md). The 28 operational-provenance rows promoted at the 90% milestone have permanent matrix coverage and read-only source-hash verification.
 
 ## Audit gates
 
@@ -250,6 +250,34 @@ The project is being upgraded from 0.2.0 in verified stages. The immediate 0.3.0
 | Project build hints | Implemented in 0.5.0 | Build-system markers are cataloged without execution |
 | Notebook metadata hints | Implemented in 0.5.0 | Notebook metadata markers are preserved as evidence |
 | Evidence-range validation | Implemented in 0.5.0 | Requested ranges are bounds-checked and hashed |
+| Provenance manifest validation | Implemented in 0.5.0 | Manifest schema and provenance fields are inspected without mutation |
+| Source hash manifest verification | Implemented in 0.5.0 | Hash comparisons are reported without rewriting evidence |
+| Acquisition manifest validation | Implemented in 0.5.0 | Acquisition metadata, hashes, and chunk fields are checked |
+| Acquisition chunk evidence | Implemented in 0.5.0 | Chunk offsets, lengths, and hashes are normalized |
+| Acquisition chunk offset validation | Implemented in 0.5.0 | Nonnegative bounded chunk geometry is validated |
+| Partition offset evidence | Implemented in 0.5.0 | Partition start/end/type evidence is normalized |
+| Partition bound validation | Implemented in 0.5.0 | Partition ranges are checked against source size |
+| Temporary read-view evidence | Implemented in 0.5.0 | Temporary-view declarations are reported as read-only evidence |
+| Read-only policy validation | Implemented in 0.5.0 | Declared read-only policy is explicitly validated |
+| Case manifest evidence | Implemented in 0.5.0 | Case identity, creation, and source counts are preserved |
+| Case identity validation | Implemented in 0.5.0 | Nonempty case identifiers are validated |
+| Audit-chain evidence | Implemented in 0.5.0 | Bounded audit windows and hashes are inspected |
+| Audit-chain validation | Implemented in 0.5.0 | Previous-hash and record-hash links are checked |
+| Report schema evidence | Implemented in 0.5.0 | Report schema and section names are preserved |
+| Report-section validation | Implemented in 0.5.0 | Report section structure is validated |
+| Artifact hash evidence | Implemented in 0.5.0 | Artifact paths and hashes are normalized |
+| Artifact provenance validation | Implemented in 0.5.0 | Artifact hash and source links are checked |
+| Output-plan evidence | Implemented in 0.5.0 | Destination, dry-run, and overwrite policy fields are exposed |
+| Output-safety validation | Implemented in 0.5.0 | Relative destination safety is checked |
+| Dry-run plan evidence | Implemented in 0.5.0 | Planned outputs are cataloged without writes |
+| Dry-run no-write validation | Implemented in 0.5.0 | Dry-run and zero-write claims are validated |
+| Recovery-status evidence | Implemented in 0.5.0 | Status, completion, and limitations are normalized |
+| Status-semantics validation | Implemented in 0.5.0 | Result status values are checked against the catalog |
+| Capability-matrix evidence | Implemented in 0.5.0 | Capability keys are inventoried without execution |
+| Capability-matrix validation | Implemented in 0.5.0 | Capability object structure is validated |
+| Native-parity evidence | Implemented in 0.5.0 | Binary, architecture, and parity declarations are preserved |
+| Benchmark-record validation | Implemented in 0.5.0 | Duration and byte counters are validated |
+| Operational-bundle validation | Implemented in 0.5.0 | Required operational fields and read-only invariants are checked |
 | Enterprise service/RBAC | Planned | Requires service API and identity integration |
 
 ## Release rule

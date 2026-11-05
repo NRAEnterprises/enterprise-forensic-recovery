@@ -118,3 +118,11 @@ A 28-target evidence-normalization batch was completed beyond the 70% milestone.
 The permanent post-70 matrix passed **28/28** against a marker-rich fixture and a malformed fixture, including unchanged source SHA-256 and read-only result assertions. The full suite passed **62 tests with 0 failures and 0 skips**. Package smoke passed, dependency audit reported **0 vulnerabilities**, syntax and diff checks passed, and the audited ledger advanced to **224/280 (80.0%)**.
 
 These adapters remain evidence collectors: entropy is not encryption proof, markers are not semantic ownership, ranges are not recovered files, and no source mutation, extraction, secret disclosure, or probabilistic reconstruction is performed.
+
+## Formal 90% gate checkpoint — 2026-11-04
+
+A 28-target operational-provenance slice was completed beyond the 80% milestone and exposed through the package `./operations` export. The adapters cover acquisition manifests and chunks, partition and temporary-view evidence, read-only policy, case identity, audit chains, reports, artifact provenance, output safety, dry-run plans, status semantics, capability matrices, native parity, benchmarks, and operational-bundle validation.
+
+The permanent operational matrix passed **28/28** against valid and malformed bundles, including unchanged source SHA-256 and read-only result assertions. The full suite passed **63 tests with 0 failures and 0 skips**. Package smoke passed, dependency audit reported **0 vulnerabilities**, syntax and diff checks passed, and the audited ledger advanced to **252/280 (90.0%)**.
+
+The 90% gate passes for the declared moderate/high/critical scope. The adapters validate supplied operational evidence; they do not provide external attestation, cloud authorization, cryptographic signing, SIEM delivery, or destructive workflow approval.

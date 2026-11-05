@@ -360,3 +360,48 @@ test('post-70 evidence adapters preserve bounded read-only contracts', async () 
     : filesystem[name](malformed, { blockSize: 512, maxBytes: 4097 })));
   assert.ok(malformedResults.every(result => result.readOnly === true && result.sourceModified === false));
 });
+
+
+test('80-to-90 operational provenance adapters preserve read-only contracts', async () => {
+  const root = await tempDir();
+  const bundle = path.join(root, 'operational-bundle.json');
+  const malformed = path.join(root, 'operational-malformed.json');
+  const firstRecord = { previousHash: 'GENESIS', action: 'acquire', ok: true };
+  firstRecord.recordHash = crypto.createHash('sha256').update(JSON.stringify(firstRecord)).digest('hex');
+  const value = {
+    schema: 'recovery.operational-bundle/v1', status: 'validated', readOnly: true, sourceModified: false,
+    source: 'evidence.img', sourceSize: 4096, sourceSha256: 'not-a-self-referential-hash',
+    acquisition: 'streaming', hashes: ['sha256'], startedAt: new Date().toISOString(), completedAt: new Date().toISOString(),
+    chunks: [{ offset: 0, length: 512, sha256: 'a'.repeat(64) }],
+    partitions: [{ byteStart: 0, byteEndExclusive: 1024, type: 'test' }], view: 'temporary-read-view',
+    id: 'case-80', createdAt: new Date().toISOString(), sources: ['evidence.img'],
+    records: [firstRecord], sections: { verification: { ok: true } },
+    artifacts: [{ output: 'artifact.bin', sha256: 'b'.repeat(64), source: 'evidence.img' }],
+    destination: 'reports', dryRun: true, writes: 0, planned: [{ output: 'artifact.bin', status: 'planned' }],
+    complete: true, limitations: ['bounded'], capabilities: { hashing: true, readOnly: true },
+    binary: 'recovery-native', architecture: 'linux-arm64', parity: true,
+    durationMs: 10, bytes: 512
+  };
+  await fs.writeFile(bundle, JSON.stringify(value));
+  await fs.writeFile(malformed, '{not-json');
+  const operations = await import('../src/operations.js');
+  const names = [
+    'validateProvenanceManifest', 'verifySourceHashManifest', 'validateAcquisitionManifest',
+    'inspectAcquisitionChunks', 'validateChunkOffsets', 'inspectPartitionOffsetEvidence',
+    'validatePartitionBounds', 'inspectTemporaryReadView', 'validateReadOnlyPolicy',
+    'inspectCaseManifest', 'validateCaseIdentity', 'inspectAuditChain', 'validateAuditChain',
+    'inspectReportSchema', 'validateReportSections', 'inspectArtifactHashes',
+    'validateArtifactProvenance', 'inspectOutputPlan', 'validateOutputSafety',
+    'inspectDryRunPlan', 'validateDryRunNoWrites', 'inspectRecoveryStatus',
+    'validateStatusSemantics', 'inspectCapabilityMatrix', 'validateCapabilityMatrix',
+    'inspectNativeParityRecord', 'validateBenchmarkRecord', 'validateOperationalBundle'
+  ];
+  const before = crypto.createHash('sha256').update(await fs.readFile(bundle)).digest('hex');
+  const results = await Promise.all(names.map(name => operations[name](bundle)));
+  assert.equal(results.length, 28);
+  assert.ok(results.every(result => (result.status === 'detected' || result.status === 'validated') && result.readOnly === true && result.sourceModified === false));
+  assert.ok(results.every(result => (result.records?.length || result.ranges?.length) > 0));
+  assert.equal(before, crypto.createHash('sha256').update(await fs.readFile(bundle)).digest('hex'));
+  const malformedResults = await Promise.all(names.map(name => operations[name](malformed)));
+  assert.ok(malformedResults.every(result => result.readOnly === true && result.sourceModified === false));
+});
